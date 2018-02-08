@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>Log In</h2>
+
+  <form action='/login', method='POST' id='loginForm'>
+
+    Email: <input type='email', id='email', name='email'><br>
+    Password: <input type='password', id='password', name='password'><br>
+    <input type='submit', id='login', value='Log In'>
+
+  </form>
+
+  Don't have an account?<a href="/register">Register for a new account</a></p>
+
+{% endblock %}

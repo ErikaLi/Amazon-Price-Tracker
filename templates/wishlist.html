@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>Wishlist</h2>
+
+  <ul>
+    {% for uprod in userproducts %}
+      <li>
+          <b>{{uprod.product_name}}</b><br>
+          <!-- style image dimension using css -->
+          <img src = "{{ uprod.image }}" height="300" width="300"><br>
+          Original Price: ${{ uprod.original_price }}<br>
+          Current Price: ${{ uprod.current_price }}<br>
+          <!-- always show wanted price in 2 decimal places -->
+          Wanted Price: ${{ uprod.threshold }}<br>
+          <a href="{{ uprod.url }}">Buy now!</a></p>
+
+          <form action='/update', method='POST'>
+            <input type='number', id='new_threshold', name='new_threshold', step="0.01">
+            <input type='hidden', name="product_id", value="{{ uprod.product_id }}">
+            <input type='submit', id='update_threshold', value='Update wanted price'>
+          </form>
+          <form action='/remove', method='POST'>
+            <input type='hidden', name="product_id", value="{{ uprod.product_id }}">
+            <input type='submit', id='remove_item', value='Remove item from wishlist'>
+          </form>
+
+      </li>
+    {% endfor %}
+  </ul>
+
+  <p><a href="/add_item">Add another item</a></p>
+  <p><a href="/logout">Log out of your account</a></p>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<h3>Add an item by URL and set a price point</h3>
+<form action='/add_item', method='POST'>
+    URL: <input type='text', id='url', name='url'><br>
+    Price Point: <input type='number', id='threshold', name='threshold', step="0.01"><br>
+    <input type='submit', id='add_item', value='Add item to Wishlist'>
+</form>
+
+<p><a href="/wishlist">View wishlist</a></p>
+<p><a href="/logout">Log out of your account</a></p>
+   
+
+{% endblock %}

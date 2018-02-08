@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+Hi, welcome to Amazon Price Tracker!
+Please fill out the information below to register for a new account!
+<form action='/register', method='POST' id='regForm'>
+    First Name*: <input type='text', id='fname', name='fname'><br>
+    Last Name*: <input type='text', id='lname', name='lname'><br>
+    Email*: <input type='email', id='email', name='email'><br>
+    Password*: <input type='password', id='password', name='password'><br>
+    Re-enter Password*: <input type='password', id='password1', name='password1'><br>
+    Phone: <input type='tel', id='phone', name='phone'><br>
+    <input type='submit', id='registration', value='Register for a new account'>
+</form>
+
+*required field
+
+{% endblock %}
