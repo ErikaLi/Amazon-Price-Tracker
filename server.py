@@ -198,6 +198,7 @@ def display_wishlist():
 
     userproduct_list = UserProduct.query.filter_by(user_id=session.get('user_id')).all()
     # use relationships to connect to products table and get product name and url
+    # maybe use userproduct.product, figure out why it does not work
     for userproduct in userproduct_list:
         userproduct.product_name = userproduct.product.name
         userproduct.image = userproduct.product.image
