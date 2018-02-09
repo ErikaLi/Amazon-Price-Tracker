@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>Welcome, {{ user.fname }}!</h3>
+<!-- <form action='/profile', method='POST' id='profileForm'> -->
+<!-- use AJAX to make this a form so they can change their info here -->
+    <div>First Name: {{ user.fname }}</div>
+    <div>Last Name: {{ user.lname }}</div>
+    <div>Email: {{ user.email }}</div>
+    <div>Phone: {{ user.phone }}<div>
+    <!-- <input type='submit', id='', value='Register for a new account'>
+</form> -->
+
+<div><a href="/change_password">Change your password</a></div>
+<div><a href="/logout">Log out of your account</a></div>
+
+{% endblock %}

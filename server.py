@@ -240,8 +240,48 @@ def remove_item():
 @app.route("/profile", methods=["GET"])
 def display_profile():
     """Display the profile page of a particular user based on the user_id in current session."""
-    
-    return render_template("profile.html", )
+
+    if not session.get('user_id'):
+        return redirect("/")
+
+    user = User.query.get(session.get('user_id'))
+    return render_template("profile.html", user=user)
+
+@app.route("/change_password", methods=['GET'])
+def display_password_form():
+    """Display the form to change password, ask the user to fill in existing and 
+    new passwords."""
+
+    if not session.get('user_id'):
+        return redirect("/")
+
+    return render_template("change_password.html")
+
+
+@app.route("/change_password", methods=['POST'])
+def process_password_change():
+    """Change the password of user if they provide the correct password,
+    pop the current_user from session, and redirect to signin page."""
+
+    old_password = request.form.get("old_password")
+    new_password = request.form.get("new_password")
+    new_password1 = request.form.get("new_password1")
+
+    # consider writing a separate function to validate the password
+    # a separate function to confirm that the two new passwords matched.
+    user = User.query.get(session.get("user_id"))
+    if old_password != user.password:
+        session.pop("user_id")
+        flash("The password you entered is incorrect. Please sign in again.")
+        return redirect("/login")
+    if new_password != new_password1:
+        # use JS or AJAX to do this
+        flash('The passwords you entered did not match, please try again.')
+        return redirect("/change_password")
+    user.password
+    session.pop("user_id")
+    flash("Your password is successfully reset, please sign in again.")
+    return redirect("login")
 
 
 if __name__ == "__main__":
