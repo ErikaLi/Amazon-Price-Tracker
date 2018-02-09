@@ -11,6 +11,8 @@ from amazon_web_scrape import parse, get_asin
 
 import datetime
 
+import bcrypt
+
 
 app = Flask(__name__)
 
@@ -54,6 +56,7 @@ def register_process():
         return redirect("/login")
     else:
         if password == password1:
+            password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             current_user = User(email=email, password=password, fname=fname, lname=lname)
             db.session.add(current_user)
             db.session.commit()
@@ -81,7 +84,7 @@ def login_process():
     password = request.form['password']
     current_user = User.query.filter(User.email == email).first()
 
-    if current_user and password == current_user.password:
+    if current_user and bcrypt.checkpw(password.encode('utf-8'), current_user.password.encode('utf-8')):
         session['user_id'] = current_user.user_id
         flash("Successfully logged in!")
         return redirect("/")
@@ -270,18 +273,20 @@ def process_password_change():
     # consider writing a separate function to validate the password
     # a separate function to confirm that the two new passwords matched.
     user = User.query.get(session.get("user_id"))
-    if old_password != user.password:
+    if not bcrypt.checkpw(old_password.encode('utf-8'), user.password.encode('utf-8')):
         session.pop("user_id")
         flash("The password you entered is incorrect. Please sign in again.")
         return redirect("/login")
-    if new_password != new_password1:
+    elif new_password != new_password1:
         # use JS or AJAX to do this
         flash('The passwords you entered did not match, please try again.')
         return redirect("/change_password")
-    user.password
-    session.pop("user_id")
-    flash("Your password is successfully reset, please sign in again.")
-    return redirect("login")
+    else:
+        user.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        db.session.commit()
+        session.pop("user_id")
+        flash("Your password is successfully reset, please sign in again.")
+        return redirect("login")
 
 
 if __name__ == "__main__":

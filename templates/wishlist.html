@@ -5,10 +5,10 @@
 
   <ul>
     {% for uprod in userproducts %}
-      <li>
+      <div>
           <b>{{uprod.product_name}}</b><br>
           <!-- style image dimension using css -->
-          <img src = "{{ uprod.image }}" height="300" width="300"><br>
+          <img src = "{{ uprod.image }}" height="300" width="200"><br>
           Original Price: ${{ uprod.original_price }}<br>
           Current Price: ${{ uprod.current_price }}<br>
           <!-- always show wanted price in 2 decimal places -->
@@ -25,7 +25,7 @@
             <input type='submit', id='remove_item', value='Remove item from wishlist'>
           </form>
 
-      </li>
+      </div>
     {% endfor %}
   </ul>
 
