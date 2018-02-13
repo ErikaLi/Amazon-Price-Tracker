@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Amazon Price Tracker</h1>
-
 {% if session.get('user_id') %}
     Welcome, Yingying! Here is a list of things that you can do:
     <p><a href="/add_item">Add an item</a></p>

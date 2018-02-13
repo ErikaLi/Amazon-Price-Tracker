@@ -3,7 +3,7 @@ from jinja2 import StrictUndefined
 from flask_debugtoolbar import DebugToolbarExtension
 
 from flask import (Flask, render_template, redirect, request, flash,
-                   session)
+                   session, jsonify)
 
 from model import User, Product, UserProduct, db, connect_to_db
 
@@ -72,6 +72,10 @@ def register_process():
 @app.route('/login', methods=["GET"])
 def login_form():
     """Display login form"""
+
+    if session.get("user_id"):
+        flash("Congratulations, you are already logged in!")
+        return redirect("/")
 
     return render_template('login.html')
 
@@ -231,13 +235,18 @@ def update_threshold():
 @app.route('/remove', methods=["POST"])
 def remove_item():
     """remove item from user's wishlist in the userproduct table
-        but does not remove it from the product list.
-        May want to consider that later as there are many products."""
+        and removes it from the product list if userproduct table does not contain 
+        this product_id."""
 
     prod_id = request.form.get("product_id")
     current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
     db.session.delete(current_userproduct)
     db.session.commit()
+    remaining_userproduct = UserProduct.query.filter_by(product_id=prod_id).all()
+    if not remaining_userproduct:
+        current_product = Product.query.get(prod_id)
+        db.session.delete(current_product)
+        db.session.commit()
     flash("The item is successfully removed from your list!")
     return redirect("/wishlist")
 

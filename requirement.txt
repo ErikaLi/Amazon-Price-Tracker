@@ -26,6 +26,8 @@ psycopg2==2.7.3.2
 ptyprocess==0.5.2
 pycparser==2.18
 Pygments==2.2.0
+python-crontab==2.2.8
+python-dateutil==2.6.1
 requests==2.18.4
 scandir==1.6
 simplegeneric==0.8.1
