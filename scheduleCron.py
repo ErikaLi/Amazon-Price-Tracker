@@ -1,14 +1,45 @@
-# https://code.tutsplus.com/tutorials/managing-cron-jobs-using-python--cms-28231
-# http://www.adminschoice.com/crontab-quick-reference
-# setting up cron job in ubuntu
-# https://askubuntu.com/questions/799023/how-to-set-up-a-cron-job-to-run-every-10-minutes
-# stack overflow https://stackoverflow.com/questions/22387883/how-to-run-the-python-program-using-cron-scheduling
+from model import Product, db, connect_to_db
+from amazon_web_scrape import parse
+from flask import Flask
+import schedule
+import time
 
-from crontab import CronTab# stack overflow https://stackoverflow.com/questions/22387883/how-to-run-the-python-program-using-cron-scheduling
 
-my_cron = CronTab('yingying')
+app = Flask(__name__)
+connect_to_db(app)
 
-job = my_cron.new(command='writeDate.py')
-job.minute.every(1)
 
-my_cron.write()
+def check_and_update_price():
+    """web scrape prices for all products and update price if needed."""
+    products = Product.query.all()
+
+    for product in products:
+        product_info = parse(product.url)
+        price = float(product_info.get('SALE_PRICE')[1:])
+        if product.price != price:
+            product.price = price
+            db.session.commit()
+
+def check_and notify():
+    """Right after the update, check if the price of items that users
+    are watching falls below their threshold and send email to notify 
+    them."""
+
+    # get all userproduct group by user
+    # compare each product and save any item that falls below threshold
+    # email users if the list is not empty
+
+# def test_print():
+#     print "hello world!"
+
+# schedule.every(1).minutes.do(test_print)
+
+schedule.every(10).minutes.do(check_and_update_price)
+
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+
+
+

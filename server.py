@@ -91,7 +91,7 @@ def login_process():
     if current_user and bcrypt.checkpw(password.encode('utf-8'), current_user.password.encode('utf-8')):
         session['user_id'] = current_user.user_id
         flash("Successfully logged in!")
-        return redirect("/")
+        return redirect("/watchlist")
     else:
         flash("Invalid log in, please try again or register as a new user.")
         return redirect("/")
@@ -131,6 +131,10 @@ def add_item():
     # get item info from url
     # may want to display image later
     item_info = parse(str(url))
+    # may not be the most stable case for handling none error
+    if item_info.get('SALE_PRICE') == None:
+        flash("The url you entered is not in the right format, please try again.")
+        return redirect("/add_item")
     name = item_info.get('NAME')
     price = float(item_info.get('SALE_PRICE')[1:])
     url = item_info.get("URL")
@@ -152,12 +156,11 @@ def add_item():
         current_userproduct = UserProduct.query.filter_by(product_id=current_prod.product_id, user_id=session.get("user_id")).first()
 
         if current_userproduct:
-            # maybe ask the user to see if they want to redirect to wishlist&update the info
-            flash("Item has already been added, you may update your threshold in the wishlist.")
-            return redirect("/wishlist")
+            # maybe ask the user to see if they want to redirect to watchlist&update the info
+            flash("Item has already been added, you may update your wanted price in watch list.")
+            return redirect("/watchlist")
         else:
-            current_userproduct = UserProduct(original_price=price,
-                                              current_price=price,
+            current_userproduct = UserProduct(#original_price=price,
                                               threshold=threshold,
                                               product_id=current_prod.product_id,
                                               user_id=session.get("user_id"),
@@ -167,13 +170,12 @@ def add_item():
 
     else:
         # if the item is not in the product table, add it to product table
-        current_prod = Product(name=name, asin=asin, image=image, url=url)
+        current_prod = Product(name=name, asin=asin, image=image, url=url, price=price)
         db.session.add(current_prod)
         db.session.commit()
 
         # create a userproduct entry and add it to the userproduct table
-        current_userproduct = UserProduct(original_price=price,
-                                          current_price=price,
+        current_userproduct = UserProduct(#original_price=price,
                                           threshold=threshold,
                                           product_id=current_prod.product_id,
                                           user_id=session.get("user_id"),
@@ -186,14 +188,14 @@ def add_item():
     # # use ajax here to ask the user to reset the price
     #     pass
     flash("Your item has been successfully added!")
-    return redirect("/wishlist")
+    return redirect("/watchlist")
 
 
 
 
-@app.route('/wishlist')
-def display_wishlist():
-    """Display wishlist of current user."""
+@app.route('/watchlist')
+def display_watchlist():
+    """Display watchlist of current user."""
     # get all products that this user follows
     # order by date_added
 
@@ -207,34 +209,52 @@ def display_wishlist():
         userproduct.product_name = userproduct.product.name
         userproduct.image = userproduct.product.image
         userproduct.url = userproduct.product.url
-    # sort the wishlist by added_date
+        userproduct.current_price = userproduct.product.price
+    # sort the watchlist by added_date
 
 
-    return render_template("wishlist.html", userproducts=userproduct_list)
+    return render_template("watchlist.html", userproducts=userproduct_list)
 
+
+# @app.route('/update', methods=["POST"])
+# def update_threshold():
+#     """Update user's threshold for a certain item in the watchlist."""
+
+#     new_threshold = request.form.get('new_threshold')
+#     prod_id = request.form.get("product_id")
+#     # if new_threshold is empty, redirect to wishilist
+#     if not new_threshold:
+#         flash("This field cannot be empty")
+#         return redirect("/watchlist")
+
+#     current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
+#     current_userproduct.threshold = new_threshold
+#     db.session.commit()
+#     flash("Your wanted price has been successfully updated!")
+#     return redirect("/watchlist")
 
 @app.route('/update', methods=["POST"])
 def update_threshold():
-    """Update user's threshold for a certain item in the wishlist."""
+    """Update user's threshold for a certain item in the watchlist."""
 
     new_threshold = request.form.get('new_threshold')
     prod_id = request.form.get("product_id")
-    # if new_threshold is empty, redirect to wishilist
+
     if not new_threshold:
         flash("This field cannot be empty")
-        return redirect("/wishlist")
-
+        return redirect("/watchlist")
+    
     current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
     current_userproduct.threshold = new_threshold
     db.session.commit()
     flash("Your wanted price has been successfully updated!")
-    return redirect("/wishlist")
+    return redirect("/watchlist")
 
 
 
 @app.route('/remove', methods=["POST"])
 def remove_item():
-    """remove item from user's wishlist in the userproduct table
+    """remove item from user's watchlist in the userproduct table
         and removes it from the product list if userproduct table does not contain 
         this product_id."""
 
@@ -248,7 +268,7 @@ def remove_item():
         db.session.delete(current_product)
         db.session.commit()
     flash("The item is successfully removed from your list!")
-    return redirect("/wishlist")
+    return redirect("/watchlist")
 
 @app.route("/profile", methods=["GET"])
 def display_profile():

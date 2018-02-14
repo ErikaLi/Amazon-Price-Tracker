@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <h2>Wishlist</h2>
+  <h2>Your Watch List</h2>
 
   <ul>
     {% for uprod in userproducts %}
@@ -9,7 +9,6 @@
           <b>{{uprod.product_name}}</b><br>
           <!-- style image dimension using css -->
           <img src = "{{ uprod.image }}" height="300" width="200"><br>
-          Original Price: ${{ uprod.original_price }}<br>
           Current Price: ${{ uprod.current_price }}<br>
           <!-- always show wanted price in 2 decimal places -->
           Wanted Price: ${{ uprod.threshold }}<br>
@@ -30,6 +29,5 @@
   </ul>
 
   <p><a href="/add_item">Add another item</a></p>
-  <p><a href="/logout">Log out of your account</a></p>
 
 {% endblock %}

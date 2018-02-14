@@ -42,6 +42,7 @@ class Product(db.Model):
     asin = db.Column(db.String(200), nullable=False)
     url = db.Column(db.String(500), nullable=False)
     image = db.Column(db.String(500), nullable=True)
+    price = db.Column(db.Float, nullable=False)
     #category = db.Column(db.String(128), nullable=True)
 
     def __repr__(self):
@@ -59,8 +60,7 @@ class UserProduct(db.Model):
     __tablename__ = 'userproducts'
 
     userproducts_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    original_price = db.Column(db.Float, nullable=False)
-    current_price = db.Column(db.Float, nullable=False)
+    #original_price = db.Column(db.Float, nullable=False)
     threshold = db.Column(db.Float, nullable=False)
     date_added = db.Column(db.DateTime, nullable=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
@@ -94,14 +94,33 @@ class UserProduct(db.Model):
 #                                                                      self.product_id, self.price)
 
 
-def connect_to_db(app):
+def connect_to_db(app, link='postgresql:///tracker'):
     """Connect the database to our Flask app."""
 
     # Configure to use our PstgreSQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///tracker'
+    app.config['SQLALCHEMY_DATABASE_URI'] = link
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
+
+
+def example_data():
+    yingying = User(fname='yingying', lname='li', email='yingying@gmail.com', password='yingyings')
+    henry = User(fname='henry', lname='u', email='henry@gmail.com', password='henrys')
+    chloe = User(fname='chloe', lname='u', email='chloe@gmail.com', password='chloes')
+
+    watch = Product(name="Burgi Women's BUR128RD Diamond Accented Flower Dial Rose Gold & Red Leather Strap Watch",
+        asin='B00ROY5VRC', 
+        url='https://www.amazon.com/Burgi-BUR128RD-Diamond-Accented-Leather/dp/B00ROY5VRC/ref=pd_bxgy_241_img_2?_encoding=UTF8&pd_rd_i=B00ROY5VRC&pd_rd_r=J2PHWBRJFMJ68422KWSZ&pd_rd_w=SLDKl&pd_rd_wg=yuw9O&psc=1&refRID=J2PHWBRJFMJ68422KWSZ&dpID=416fCO-HE6L&preST=_SY300_QL70_&dpSrc=detail', 
+        price=50)
+
+    sunglasses = Product(name="SojoS Fashion Polarized Sunglasses UV Mirrored Lens Oversize Metal Frame SJ1057",
+        asin='B06XKNYYWY', 
+        url='https://www.amazon.com/dp/B06XKNYYWY/ref=sspa_dk_detail_1?psc=1&pd_rd_i=B06XKNYYWY&pd_rd_wg=i2ZAC&pd_rd_r=2JGB9BJ5SAGYXSD3PJQN&pd_rd_w=Pts4c ', 
+        price=1)
+    db.session.add_all([yingying, henry, chloe, sunglasses, watch])
+    db.session.commit()
+
 
 
 if __name__ == "__main__":
