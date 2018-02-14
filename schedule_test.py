@@ -1,5 +1,5 @@
 from unittest import TestCase
-from model import Product, connect_to_db, db, example_data
+from model import User, Product, UserProduct, db, connect_to_db, example_data
 from server import app
 from flask import session
 from schedule_check_and_notify import (check_and_update_price, notify, 
@@ -27,11 +27,16 @@ class FlaskTestsDatabase(TestCase):
         db.session.close()
         db.drop_all()
 
-    def test_check_price(self):
-        old_price = Product.query.filter(Product.asin=='B06XKNYYWY').first().price
-        check_and_update_price()
-        new_price = Product.query.filter(Product.asin=='B06XKNYYWY').first().price
-        self.assertNotEqual(old_price, new_price)
+    # def test_check_price(self):
+    #     old_price = Product.query.filter(Product.asin=='B06XKNYYWY').first().price
+    #     check_and_update_price()
+    #     new_price = Product.query.filter(Product.asin=='B06XKNYYWY').first().price
+    #     self.assertNotEqual(old_price, new_price)
+
+    def test_check_and_notify(self):
+        user_id_lst = check_and_notify()
+        self.assertEqual(user_id_lst, [1, 2])
+
 
 if __name__ == "__main__":
     import unittest

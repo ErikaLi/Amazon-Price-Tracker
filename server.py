@@ -49,6 +49,13 @@ def register_process():
     password1 = request.form.get('password1')
     fname = request.form.get('fname')
     lname = request.form.get('lname')
+    phone = request.form.get("phone")
+
+    # use ajax to do this
+    if not (email and password and password1 and fname and lname and phone):
+        flash("Please fill in the required information.")
+        return redirect("/register")
+
     current_user = User.query.filter(User.email == email).first()
 
     if current_user:
@@ -57,7 +64,7 @@ def register_process():
     else:
         if password == password1:
             password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-            current_user = User(email=email, password=password, fname=fname, lname=lname)
+            current_user = User(email=email, password=password, fname=fname, lname=lname, phone=phone)
             db.session.add(current_user)
             db.session.commit()
             flash("Successfully registered! Log in to your account now.")

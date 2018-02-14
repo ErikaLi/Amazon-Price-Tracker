@@ -1,4 +1,5 @@
-from model import Product, Userproduct, User, db, connect_to_db
+from model import User, Product, UserProduct, db, connect_to_db
+from twilio_text import send_text
 from amazon_web_scrape import parse
 from flask import Flask
 import schedule
@@ -24,10 +25,12 @@ def notify(user_id, product_id_lst):
     """Send notification(email or text) to users
     containing info about products that drops below threshold."""
     curr_user = User.query.get(user_id)
-    email = curr_user.email
-    # phone = curr_user.phone
+    phone = curr_user.phone
+    message = "Hi {}, one or more items that you are watching falls below your wanted price. Log in to check!".format(curr_user.fname)
+    send_text(phone, message)
+
+    # email
     # use email library to send email to user regarding their products
-    
 
 
 def check_price(user_id):
@@ -42,9 +45,9 @@ def check_price(user_id):
     underpriced_product_id = []
 
     # join userproducts table and products table
-    prods = db.session.query(Userproduct.threshold,
+    prods = db.session.query(UserProduct.threshold,
                              Product.price,
-                             Product.product_id).join(Product).filter(Userproduct.user_id==user_id).all()
+                             Product.product_id).join(Product).filter(UserProduct.user_id==user_id).all()
 
     for threshold, price, product_id in prods:
         if price < threshold:
@@ -59,19 +62,28 @@ def check_and_notify():
     # get all userproduct group by user
     # compare each product and save any item that falls below threshold
     # email users if the list is not empty
+
+    # for testing purpose, save the id of user that receives a text
+    user_id_list = []
     all_users = User.query.all()
     for user in all_users:
         product_id_lst = check_price(user.user_id)
         if product_id_lst:
-            notify(user_id, product_id_lst)
+            notify(user.user_id, product_id_lst)
+            # for testing purpose
+            user_id_list.append(user.user_id)
+    # for testing purpose
+    return user_id_list
+            
 
 
-schedule.every(10).minutes.do(check_and_update_price)
+# schedule.every(10).minutes.do(check_and_update_price)
+# schedule.every(10).minutes.do(check_and_notify)
 
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
 
 
 

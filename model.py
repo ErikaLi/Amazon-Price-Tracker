@@ -20,7 +20,7 @@ class User(db.Model):
     lname = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(64), nullable=False)
-    phone = db.Column(db.String(16), nullable=True)
+    phone = db.Column(db.String(16), nullable=False)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -105,9 +105,9 @@ def connect_to_db(app, link='postgresql:///tracker'):
 
 
 def example_data():
-    yingying = User(fname='yingying', lname='li', email='yingying@gmail.com', password='yingyings')
-    henry = User(fname='henry', lname='u', email='henry@gmail.com', password='henrys')
-    chloe = User(fname='chloe', lname='u', email='chloe@gmail.com', password='chloes')
+    yingying = User(fname='yingying', lname='li', email='yingying@gmail.com', password='yingyings', phone='510-520-2299')
+    henry = User(fname='henry', lname='u', email='henry@gmail.com', password='henrys', phone='510-520-2299')
+    chloe = User(fname='chloe', lname='u', email='chloe@gmail.com', password='chloes', phone='510-520-2299')
 
     watch = Product(name="Burgi Women's BUR128RD Diamond Accented Flower Dial Rose Gold & Red Leather Strap Watch",
         asin='B00ROY5VRC', 
@@ -118,7 +118,12 @@ def example_data():
         asin='B06XKNYYWY', 
         url='https://www.amazon.com/dp/B06XKNYYWY/ref=sspa_dk_detail_1?psc=1&pd_rd_i=B06XKNYYWY&pd_rd_wg=i2ZAC&pd_rd_r=2JGB9BJ5SAGYXSD3PJQN&pd_rd_w=Pts4c ', 
         price=1)
-    db.session.add_all([yingying, henry, chloe, sunglasses, watch])
+
+    yingying_watch = UserProduct(threshold=80, product_id=1, user_id=1)
+    henry_watch = UserProduct(threshold=30, product_id=1, user_id=2)
+    henry_sunglasses = UserProduct(threshold=50, product_id=2, user_id=2)
+
+    db.session.add_all([yingying, henry, chloe, sunglasses, watch, yingying_watch, henry_watch, henry_sunglasses])
     db.session.commit()
 
 
