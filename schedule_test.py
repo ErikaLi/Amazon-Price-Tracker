@@ -27,15 +27,16 @@ class FlaskTestsDatabase(TestCase):
         db.session.close()
         db.drop_all()
 
-    # def test_check_price(self):
-    #     old_price = Product.query.filter(Product.asin=='B06XKNYYWY').first().price
-    #     check_and_update_price()
-    #     new_price = Product.query.filter(Product.asin=='B06XKNYYWY').first().price
-    #     self.assertNotEqual(old_price, new_price)
+    def test_check_price(self):
+        old_price = Product.query.filter(Product.asin=='B06XKNYYWY').first().price
+        check_and_update_price()
+        new_price = Product.query.filter(Product.asin=='B06XKNYYWY').first().price
+        self.assertNotEqual(old_price, new_price)
 
-    def test_check_and_notify(self):
-        user_id_lst = check_and_notify()
-        self.assertEqual(user_id_lst, [1, 2])
+    # uncomment parts in schedule_check_and_notify.py to run this test
+    # def test_check_and_notify(self):
+    #     user_id_lst = check_and_notify()
+    #     self.assertEqual(user_id_lst, [1, 2])
 
 
 if __name__ == "__main__":

@@ -63,27 +63,27 @@ def check_and_notify():
     # compare each product and save any item that falls below threshold
     # email users if the list is not empty
 
-    # for testing purpose, save the id of user that receives a text
-    user_id_list = []
+    # UNCOMMENT TO RUN TESTS
+    # user_id_list = []
     all_users = User.query.all()
     for user in all_users:
         product_id_lst = check_price(user.user_id)
         if product_id_lst:
             notify(user.user_id, product_id_lst)
-            # for testing purpose
-            user_id_list.append(user.user_id)
-    # for testing purpose
-    return user_id_list
+            # UNCOMMENT TO RUN TESTS
+            # user_id_list.append(user.user_id)
+    # UNCOMMENT TO RUN TESTS
+    # return user_id_list
             
 
+if __name__ == "__main__":
+       
+    schedule.every(10).minutes.do(check_and_update_price)
+    schedule.every(10).minutes.do(check_and_notify)
 
-# schedule.every(10).minutes.do(check_and_update_price)
-# schedule.every(10).minutes.do(check_and_notify)
-
-
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 
