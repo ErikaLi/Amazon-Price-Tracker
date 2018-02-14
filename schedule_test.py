@@ -2,7 +2,8 @@ from unittest import TestCase
 from model import Product, connect_to_db, db, example_data
 from server import app
 from flask import session
-from scheduleCron import check_and_update_price
+from schedule_check_and_notify import (check_and_update_price, notify, 
+                                        check_price, check_and_notify)
 
 class FlaskTestsDatabase(TestCase):
     """Flask tests that use the database."""
