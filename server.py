@@ -53,26 +53,45 @@ def register_process():
 
     # use ajax to do this
     if not (email and password and password1 and fname and lname and phone):
-        flash("Please fill in the required information.")
-        return redirect("/register")
+        results = {"message": "Please fill in all required information.",
+                    "redirect": False,
+                    'empty_password': False,
+                    }
+        return jsonify(results)
 
     current_user = User.query.filter(User.email == email).first()
 
     if current_user:
-        flash("This email is already in use. Please log in to your account.")
-        return redirect("/login")
+        # alert this in AJAX then redirects
+        results = {"message": "This email is already in use. Please log in to your account.",
+                    "redirect": True,
+                    "redirect_url": "/login",
+                    'empty_password': False,
+                    }
+        return jsonify(results)
+
     else:
+
         if password == password1:
             password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             current_user = User(email=email, password=password, fname=fname, lname=lname, phone=phone)
             db.session.add(current_user)
             db.session.commit()
-            flash("Successfully registered! Log in to your account now.")
-            return redirect("/login")
+
+            results = {"message": "Successfully registered! Log in to your account now.",
+                    "redirect": True,
+                    "redirect_url": "/login",
+                    'empty_password': False,
+                    }
+            return jsonify(results)
+
         else:
-            # use AJAX to do this
-            flash("The password you entered did not match, try again.")
-            return redirect("/register")
+            results = {"message": "The password you entered did not match, try again.",
+                       "redirect": False,
+                       'empty_password': True,
+                    }
+            return jsonify(results)
+            
 
 
 

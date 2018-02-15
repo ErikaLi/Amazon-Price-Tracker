@@ -26,7 +26,8 @@ def notify(user_id, product_id_lst):
     containing info about products that drops below threshold."""
     curr_user = User.query.get(user_id)
     phone = curr_user.phone
-    message = "Hi {}, one or more items that you are watching falls below your wanted price. Log in to check!".format(curr_user.fname)
+    # personalize message using product_id_lst
+    message = "Hi {}, one or more items that you are watching fall below your wanted price. Log in to check!".format(curr_user.fname)
     send_text(phone, message)
 
     # email
