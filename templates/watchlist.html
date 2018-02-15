@@ -11,15 +11,15 @@
           <img src = "{{ uprod.image }}" height="300" width="200"><br>
           Current Price: ${{ uprod.current_price }}<br>
           <!-- always show wanted price in 2 decimal places -->
-          Wanted Price: ${{ uprod.threshold }}<br>
+          Wanted Price: $<span id='wanted_price'>{{ uprod.threshold }}</span><br>
           <a href="{{ uprod.url }}">Buy now!</a></p>
 
-          <form action='/update', method='POST'>
+          <form action='/update', method='POST', id='update_form'>
             <input type='number', id='new_threshold', name='new_threshold', step="0.01">
-            <input type='hidden', name="product_id", value="{{ uprod.product_id }}">
+            <input type='hidden', id = 'product_id', name="product_id", value="{{ uprod.product_id }}">
             <input type='submit', id='update_threshold', value='Update wanted price'>
           </form>
-          <form action='/remove', method='POST'>
+          <form action='/remove', method='POST', id='remove_form'>
             <input type='hidden', name="product_id", value="{{ uprod.product_id }}">
             <input type='submit', id='remove_item', value='Remove item from wishlist'>
           </form>
@@ -29,5 +29,7 @@
   </ul>
 
   <p><a href="/add_item">Add another item</a></p>
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="/static/js/watchlist.js"></script>
 
 {% endblock %}

@@ -267,14 +267,20 @@ def update_threshold():
     prod_id = request.form.get("product_id")
 
     if not new_threshold:
-        flash("This field cannot be empty")
-        return redirect("/watchlist")
+        results = {'message': "This field cannot be empty",
+                    'new': False
+        }
+        return jsonify(results)
     
     current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
     current_userproduct.threshold = new_threshold
     db.session.commit()
-    flash("Your wanted price has been successfully updated!")
-    return redirect("/watchlist")
+
+    results = {'message': "Your wanted price has been successfully updated!",
+                'new': True,
+                'new_price': new_threshold
+                }
+    return jsonify(results)
 
 
 
