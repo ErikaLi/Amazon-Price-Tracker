@@ -214,13 +214,13 @@ def logout_process():
 
     return redirect("/")
 
-# @app.route('/add_item', methods=["GET"])
+@app.route('/add_item', methods=["GET"])
 # def display_add_item():
 #     """display form to add item."""
 
 #     if not session.get("user_id"):
 #         return redirect("/")
-#     return render_template("add_item.html")
+    # return render_template("add_item.html")
 
 
 
@@ -233,23 +233,31 @@ def add_item():
     # impose that threshold must be less than or equal to price by setting max
     # in html, example: https://www.w3schools.com/html/html_form_input_types.asp
     url = request.form.get('url')
-    threshold = request.form.get('threshold')
-
+    threshold = float(request.form.get('threshold'))
     # get item info from url
     # may want to display image later
-    item_info = parse(str(url))
+    item_info = parse(url)
     # may not be the most stable case for handling none error
     if item_info.get('SALE_PRICE') == None:
         flash("The url you entered is not in the right format, please try again.")
-        return redirect("/add_item")
+        return render_template('watchlist.html')
     name = item_info.get('NAME')
     price = float(item_info.get('SALE_PRICE')[1:])
     url = item_info.get("URL")
     asin = get_asin(url)
     image = item_info.get("image_url")
 
+
+
+# results = { "template": render_template_as_string("/product_list")}
+    ### return jsonify(results)
+
     current_prod = Product.query.filter(Product.asin == asin).first()
     timestamp = datetime.datetime.now()
+
+    if threshold >= price:
+        flash("Please enter a wanted price lower than the price of the product.")
+        return redirect("/watchlist")
 
     if current_prod:
         # if the product already exists in the product table, check in the
@@ -344,12 +352,22 @@ def display_watchlist():
 def update_threshold():
     """Update user's threshold for a certain item in the watchlist."""
 
-    new_threshold = request.form.get('new_threshold')
+    new_threshold = float(request.form.get('new_threshold'))
     prod_id = request.form.get("product_id")
+    print new_threshold
+    print prod_id
 
     if not new_threshold:
         results = {'message': "This field cannot be empty",
-                    'new': False
+                    'new': False,
+                    'empty': False
+        }
+        return jsonify(results)
+
+    if new_threshold >= Product.query.get(prod_id).price:
+        results = {'message': "Please enter a wanted price lower than the product price.",
+                    'new': False,
+                    'empty': True
         }
         return jsonify(results)
     
@@ -359,7 +377,8 @@ def update_threshold():
 
     results = {'message': "Your wanted price has been successfully updated!",
                 'new': True,
-                'new_price': new_threshold
+                'new_price': new_threshold,
+                'empty': False
                 }
     return jsonify(results)
 
@@ -380,8 +399,9 @@ def remove_item():
         current_product = Product.query.get(prod_id)
         db.session.delete(current_product)
         db.session.commit()
-    flash("The item is successfully removed from your list!")
-    return redirect("/watchlist")
+    result = {'message': 'You successfully deleted your item!',
+                'product_id': prod_id}
+    return jsonify(result)
 
 @app.route("/profile", methods=["GET"])
 def display_profile():
