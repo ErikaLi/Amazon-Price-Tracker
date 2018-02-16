@@ -2,8 +2,9 @@
 {% block content %}
 
 {% if session.get('user_id') %}
+    <!-- personalize welcome message -->
     Welcome, Yingying! Here is a list of things that you can do:
-    <div><a href="/add_item">Add an item</a></div>
+    <div><a href="/watchlist">Add an item</a></div>
     <div><a href="/watchlist">View your watch list</a></div>
     <div><a href="/divrofile">View your profile</a></div>
     <div><a href="/logout">Log out of your account</a></div>

@@ -101,7 +101,11 @@ def get_asin(string):
         if m:
             return m.group()[4:-1]
         else:
-            return None
+            m = re.search(r'(/dp/)[a-zA-Z0-9_]{10}(\?)', string)
+            if m:
+                return m.group()[4:-1]
+            else:
+                return None
 
 
 # if __name__ == "__main__":

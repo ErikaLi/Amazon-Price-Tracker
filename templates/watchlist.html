@@ -28,7 +28,12 @@
     {% endfor %}
   </ul>
 
-  <p><a href="/add_item">Add another item</a></p>
+ <b>Add another item</b>
+<form action='/add_item', method='POST'>
+    Amazon URL: <input type='text', id='url', name='url'><br>
+    Wanted Price: <input type='number', id='threshold', name='threshold', step="0.01"><br>
+    <input type='submit', id='add_item', value='Watch item'>
+</form>
   <script src="http://code.jquery.com/jquery.js"></script>
   <script src="/static/js/watchlist.js"></script>
 

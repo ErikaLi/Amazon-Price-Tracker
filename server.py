@@ -13,6 +13,8 @@ import datetime
 
 import bcrypt
 
+from password_check import password_check
+
 
 app = Flask(__name__)
 
@@ -55,7 +57,7 @@ def register_process():
     if not (email and password and password1 and fname and lname and phone):
         results = {"message": "Please fill in all required information.",
                     "redirect": False,
-                    'empty_password': False,
+                    'empty_password': True,
                     }
         return jsonify(results)
 
@@ -71,8 +73,25 @@ def register_process():
         return jsonify(results)
 
     else:
+        # enforce phone format
+        if not(phone.isdigit() and len(phone) == 10):
+            results = {"message": "Please enter a 10-digit phone number without any symbol",
+                    "redirect": False,
+                    'empty_password': True,
+                    }
+            return jsonify(results)
+
+
 
         if password == password1:
+            # enforce password format
+            if not password_check(password):
+                results = {"message": "Please enter a password with at least one uppercase letter, one digit, and one symbol with minimum length 8.",
+                    "redirect": False,
+                    'empty_password': True,
+                    }
+                return jsonify(results)
+
             password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             current_user = User(email=email, password=password, fname=fname, lname=lname, phone=phone)
             db.session.add(current_user)
@@ -92,7 +111,69 @@ def register_process():
                     }
             return jsonify(results)
             
+@app.route("/change_password", methods=['GET'])
+def display_password_form():
+    """Display the form to change password, ask the user to fill in existing and 
+    new passwords."""
 
+    if not session.get('user_id'):
+        return redirect("/")
+
+    return render_template("change_password.html")
+
+
+@app.route("/change_password", methods=['POST'])
+def process_password_change():
+    """Change the password of user if they provide the correct password,
+    pop the current_user from session, and redirect to login page."""
+
+    old_password = request.form.get("old_password")
+    new_password = request.form.get("new_password")
+    new_password1 = request.form.get("new_password1")
+
+    if not (old_password and new_password and new_password1):
+        results = {"message": "Please fill in all required information.",
+                    "redirect": False,
+                    'empty_password': True,
+                    }
+        return jsonify(results)
+
+
+    # consider writing a separate function to validate the password
+    # a separate function to confirm that the two new passwords matched.
+    user = User.query.get(session.get("user_id"))
+
+    if not bcrypt.checkpw(old_password.encode('utf-8'), user.password.encode('utf-8')):
+        session.pop("user_id")
+        results = {"message": "The password you entered is incorrect, please sign in again.",
+                   "redirect": True,
+                   'redirect_url': '/login',
+                }
+        return jsonify(results)
+
+    elif new_password != new_password1:
+        # use JS or AJAX to do this
+        results = {"message": "The two passwords you enter do not match, please try again.",
+                    "redirect": False,
+                    'empty_password': True,
+                }
+        return jsonify(results)
+    else:
+        if not password_check(new_password):
+            results = {"message": "Please enter a password with at least one uppercase letter, one digit, and one symbol with minimum length 8.",
+                           "redirect": False,
+                           'empty_password': True,
+                        }
+            return jsonify(results)
+
+        user.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        db.session.commit()
+        session.pop("user_id")
+        results = {"message": 'Your password was successfully reset, please sign in using your new password.',
+                    "redirect": True,
+                    'redirect_url': "/login",
+                }
+        return jsonify(results)
 
 
 @app.route('/login', methods=["GET"])
@@ -133,13 +214,13 @@ def logout_process():
 
     return redirect("/")
 
-@app.route('/add_item', methods=["GET"])
-def display_add_item():
-    """display form to add item."""
+# @app.route('/add_item', methods=["GET"])
+# def display_add_item():
+#     """display form to add item."""
 
-    if not session.get("user_id"):
-        return redirect("/")
-    return render_template("add_item.html")
+#     if not session.get("user_id"):
+#         return redirect("/")
+#     return render_template("add_item.html")
 
 
 
@@ -311,44 +392,6 @@ def display_profile():
 
     user = User.query.get(session.get('user_id'))
     return render_template("profile.html", user=user)
-
-@app.route("/change_password", methods=['GET'])
-def display_password_form():
-    """Display the form to change password, ask the user to fill in existing and 
-    new passwords."""
-
-    if not session.get('user_id'):
-        return redirect("/")
-
-    return render_template("change_password.html")
-
-
-@app.route("/change_password", methods=['POST'])
-def process_password_change():
-    """Change the password of user if they provide the correct password,
-    pop the current_user from session, and redirect to signin page."""
-
-    old_password = request.form.get("old_password")
-    new_password = request.form.get("new_password")
-    new_password1 = request.form.get("new_password1")
-
-    # consider writing a separate function to validate the password
-    # a separate function to confirm that the two new passwords matched.
-    user = User.query.get(session.get("user_id"))
-    if not bcrypt.checkpw(old_password.encode('utf-8'), user.password.encode('utf-8')):
-        session.pop("user_id")
-        flash("The password you entered is incorrect. Please sign in again.")
-        return redirect("/login")
-    elif new_password != new_password1:
-        # use JS or AJAX to do this
-        flash('The passwords you entered did not match, please try again.')
-        return redirect("/change_password")
-    else:
-        user.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-        db.session.commit()
-        session.pop("user_id")
-        flash("Your password is successfully reset, please sign in again.")
-        return redirect("login")
 
 
 if __name__ == "__main__":
