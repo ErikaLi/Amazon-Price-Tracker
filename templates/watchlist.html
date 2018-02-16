@@ -15,7 +15,7 @@
           <a href="{{ uprod.url }}">Buy now!</a></p>
 
           <form action='/update' method='POST' id='update_form'>
-            <input type='number' id='new_threshold', name='new_threshold', step="1.00">
+            <input type='number' id='new_threshold' name='new_threshold' step="1.00">
             <input type='hidden' id = 'product_id_update' name="product_id" value="{{ uprod.product_id }}">
             <input type='submit' id='update_threshold' value='Update wanted price'>
           </form> 
@@ -28,12 +28,14 @@
     {% endfor %}
   </ul>
 
- <b>Add another item</b>
-<form action='/add_item', method='POST'>
-    Amazon URL: <input type='text', id='url', name='url'><br>
-    Wanted Price: <input type='number', id='threshold', name='threshold', step="0.01"><br>
-    <input type='button', id='add_item', value='Watch item'>
-</form>
+<!--  <b>Add another item</b>
+<form action='/add_item' method='POST'>
+    Amazon URL: <input type='text' id='url' name='url' required><br>
+    Wanted Price: <input type='number' id='threshold' name='threshold' step="1" required><br>
+    <input type='button' id='add_item' value='Watch item'>
+</form> -->
+
+<a href='/add_item'>Add another item to your watchlist</a>
   <script src="http://code.jquery.com/jquery.js"></script>
   <script src="/static/js/watchlist.js"></script>
 

@@ -37,6 +37,7 @@ def index():
 @app.route('/register')
 def display_registration():
     """display registration form"""
+
     return render_template("register.html")
 
 
@@ -45,7 +46,8 @@ def register_process():
     """Process registration form"""
 
     # ask the user to reenter password and then confirm they match.
-
+    # get info from the AJAX request in register.js
+    # all of the info will be in string format
     email = request.form.get('email')
     password = request.form.get('password')
     password1 = request.form.get('password1')
@@ -53,63 +55,58 @@ def register_process():
     lname = request.form.get('lname')
     phone = request.form.get("phone")
 
-    # use ajax to do this
-    if not (email and password and password1 and fname and lname and phone):
-        results = {"message": "Please fill in all required information.",
-                    "redirect": False,
-                    'empty_password': True,
-                    }
-        return jsonify(results)
-
+    # check to see if the email was already in use
     current_user = User.query.filter(User.email == email).first()
 
     if current_user:
-        # alert this in AJAX then redirects
+        # redirects them to login if the email is already in use
         results = {"message": "This email is already in use. Please log in to your account.",
-                    "redirect": True,
-                    "redirect_url": "/login",
-                    'empty_password': False,
+                   "redirect": True,
+                   "redirect_url": "/login",
+                   "empty_password": False,
                     }
         return jsonify(results)
 
     else:
+        # if the email is new, check that they enter every field in the correct format
         # enforce phone format
         if not(phone.isdigit() and len(phone) == 10):
             results = {"message": "Please enter a 10-digit phone number without any symbol",
-                    "redirect": False,
-                    'empty_password': True,
+                       "redirect": False,
+                       "empty_password": True,
                     }
             return jsonify(results)
 
-
-
+        # check if the two passwords match
         if password == password1:
-            # enforce password format
+            # enforce password format using a function in password_check.py
+            # if the passwords do not match, alert a message and empty out the password fields
             if not password_check(password):
-                results = {"message": "Please enter a password with at least one uppercase letter, one digit, and one symbol with minimum length 8.",
-                    "redirect": False,
-                    'empty_password': True,
-                    }
+                results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one special character with minimum length of 8.",
+                           "redirect": False,
+                           "empty_password": True,
+                        }
                 return jsonify(results)
-
+            # if everything is in the right format, add the user to the database
             password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             current_user = User(email=email, password=password, fname=fname, lname=lname, phone=phone)
             db.session.add(current_user)
             db.session.commit()
 
             results = {"message": "Successfully registered! Log in to your account now.",
-                    "redirect": True,
-                    "redirect_url": "/login",
-                    'empty_password': False,
+                       "redirect": True,
+                       "redirect_url": "/login",
+                       "empty_password": False,
                     }
             return jsonify(results)
 
         else:
             results = {"message": "The password you entered did not match, try again.",
                        "redirect": False,
-                       'empty_password': True,
+                       "empty_password": True,
                     }
             return jsonify(results)
+
             
 @app.route("/change_password", methods=['GET'])
 def display_password_form():
@@ -131,18 +128,9 @@ def process_password_change():
     new_password = request.form.get("new_password")
     new_password1 = request.form.get("new_password1")
 
-    if not (old_password and new_password and new_password1):
-        results = {"message": "Please fill in all required information.",
-                    "redirect": False,
-                    'empty_password': True,
-                    }
-        return jsonify(results)
-
-
-    # consider writing a separate function to validate the password
-    # a separate function to confirm that the two new passwords matched.
     user = User.query.get(session.get("user_id"))
 
+    # if the user does not enter a correct current password, logout and redirect to login again
     if not bcrypt.checkpw(old_password.encode('utf-8'), user.password.encode('utf-8')):
         session.pop("user_id")
         results = {"message": "The password you entered is incorrect, please sign in again.",
@@ -151,6 +139,7 @@ def process_password_change():
                 }
         return jsonify(results)
 
+    # if the new passwords does not match, ask them to enter again and empty out all password fields
     elif new_password != new_password1:
         # use JS or AJAX to do this
         results = {"message": "The two passwords you enter do not match, please try again.",
@@ -158,11 +147,13 @@ def process_password_change():
                     'empty_password': True,
                 }
         return jsonify(results)
+
     else:
+        # if the new passwords are not in the right format, empty out all passwords and ask them to try again
         if not password_check(new_password):
-            results = {"message": "Please enter a password with at least one uppercase letter, one digit, and one symbol with minimum length 8.",
-                           "redirect": False,
-                           'empty_password': True,
+            results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one symbol with minimum length 8.",
+                       "redirect": False,
+                       "empty_password": True,
                         }
             return jsonify(results)
 
@@ -200,8 +191,8 @@ def login_process():
         flash("Successfully logged in!")
         return redirect("/watchlist")
     else:
-        flash("Invalid log in, please try again or register as a new user.")
-        return redirect("/")
+        flash("Invalid log in, please try again.")
+        return redirect("/login")
 
 
 @app.route('/logout', methods=["GET"])
@@ -215,12 +206,12 @@ def logout_process():
     return redirect("/")
 
 @app.route('/add_item', methods=["GET"])
-# def display_add_item():
-#     """display form to add item."""
+def display_add_item():
+    """display form to add item."""
 
-#     if not session.get("user_id"):
-#         return redirect("/")
-    # return render_template("add_item.html")
+    if not session.get("user_id"):
+        return redirect("/")
+    return render_template("add_item.html")
 
 
 
@@ -230,17 +221,15 @@ def add_item():
     if it does not already exist. If product already exists in the Product table,
     update its price."""
 
-    # impose that threshold must be less than or equal to price by setting max
-    # in html, example: https://www.w3schools.com/html/html_form_input_types.asp
     url = request.form.get('url')
     threshold = float(request.form.get('threshold'))
     # get item info from url
-    # may want to display image later
     item_info = parse(url)
     # may not be the most stable case for handling none error
     if item_info.get('SALE_PRICE') == None:
         flash("The url you entered is not in the right format, please try again.")
-        return render_template('watchlist.html')
+        # return render_template('add_item.html')
+        return redirect("/add_item")
     name = item_info.get('NAME')
     price = float(item_info.get('SALE_PRICE')[1:])
     url = item_info.get("URL")
@@ -248,16 +237,15 @@ def add_item():
     image = item_info.get("image_url")
 
 
-
 # results = { "template": render_template_as_string("/product_list")}
     ### return jsonify(results)
 
     current_prod = Product.query.filter(Product.asin == asin).first()
     timestamp = datetime.datetime.now()
-
+    # use AJAX to handle this
     if threshold >= price:
         flash("Please enter a wanted price lower than the price of the product.")
-        return redirect("/watchlist")
+        return redirect("/add_item")
 
     if current_prod:
         # if the product already exists in the product table, check in the
@@ -354,15 +342,6 @@ def update_threshold():
 
     new_threshold = float(request.form.get('new_threshold'))
     prod_id = request.form.get("product_id")
-    print new_threshold
-    print prod_id
-
-    if not new_threshold:
-        results = {'message': "This field cannot be empty",
-                    'new': False,
-                    'empty': False
-        }
-        return jsonify(results)
 
     if new_threshold >= Product.query.get(prod_id).price:
         results = {'message': "Please enter a wanted price lower than the product price.",
@@ -395,6 +374,7 @@ def remove_item():
     db.session.delete(current_userproduct)
     db.session.commit()
     remaining_userproduct = UserProduct.query.filter_by(product_id=prod_id).all()
+    
     if not remaining_userproduct:
         current_product = Product.query.get(prod_id)
         db.session.delete(current_product)

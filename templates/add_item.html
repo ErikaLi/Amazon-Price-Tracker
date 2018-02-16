@@ -3,10 +3,10 @@
 
 
 <h3>Add an item by URL and set a price point</h3>
-<form action='/add_item', method='POST'>
-    URL: <input type='text', id='url', name='url'><br>
-    Price Point: <input type='number', id='threshold', name='threshold', step="0.01"><br>
-    <input type='submit', id='add_item', value='Watch item'>
+<form action='/add_item' method='POST'>
+    URL: <input type='text' id='url' name='url' required><br>
+    Price Point: <input type='number' id='threshold' name='threshold' step="1" required><br>
+    <input type='submit' id='add_item' value='Watch item'>
 </form>
    
 

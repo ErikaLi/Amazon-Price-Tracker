@@ -46,33 +46,35 @@ function deleteItem(evt) {
 
 }
 
-function processAddItem(result) {
-    // jquery create dom element li, with id result.id
-    // jquery to get ul (list of products) append to this list
+// functions to handle add item on the same page without redirecting
+// function processAddItem(result) {
+//     // jquery create dom element li, with id result.id
+//     // jquery to get ul (list of products) append to this list
 
-    // OR
+//     // OR
 
-    // jquery to clear the whole list, add product_list template
-
-
-    // var html = "<li id='" + result.id + '">' + result.productname + "</li>"
-
-    $('ul').append("<li>TEST</li>")
-}
-
-function addItem(e) {
-    e.preventDefault()
-
-    processAddItem()
-    // $.post("/add_item", 
-    //        formInputs,
-    //        processAddItem);
+//     // jquery to clear the whole list, add product_list template
 
 
-}
+//     // var html = "<li id='" + result.id + '">' + result.productname + "</li>"
+
+//     $('ul').append("<li>TEST</li>")
+// }
+
+// function addItem(e) {
+//     e.preventDefault()
+
+//     processAddItem()
+//     // $.post("/add_item", 
+//     //        formInputs,
+//     //        processAddItem);
+
+
+// }
+// $('#add_item').on("click", addItem);
 
 
 $("#update_form").on("submit", getUpdateInfo);
 
 $('input[id^=remove_item]').on("click", deleteItem);
-$('#add_item').on("click", addItem);
+
