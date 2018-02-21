@@ -106,7 +106,7 @@ def get_asin(string):
                 return m.group()[4:-1]
             else:
                 return None
-
+                
 
 # if __name__ == "__main__":
 #     parse("https://www.amazon.com/dp/B01J94SWWU/ref=fs_ods_tab_ds")

@@ -7,7 +7,7 @@ from flask import (Flask, render_template, redirect, request, flash,
 
 from model import User, Product, UserProduct, db, connect_to_db
 
-from amazon_web_scrape import parse, get_asin
+from product_detail import get_item_info, get_asin
 
 import datetime
 
@@ -222,18 +222,25 @@ def add_item():
     update its price."""
 
     url = request.form.get('url')
-    threshold = float(request.form.get('threshold'))
-    # get item info from url
-    item_info = parse(url)
-    # may not be the most stable case for handling none error
-    if item_info.get('SALE_PRICE') == None:
+    asin = get_asin(url)
+    if not asin:
         flash("The url you entered is not in the right format, please try again.")
         # return render_template('add_item.html')
         return redirect("/add_item")
-    name = item_info.get('NAME')
-    price = float(item_info.get('SALE_PRICE')[1:])
-    url = item_info.get("URL")
-    asin = get_asin(url)
+
+    threshold = float(request.form.get('threshold'))
+    # get item info from url
+    item_info = get_item_info(asin)
+        
+    name = item_info.get('title')
+    price = item_info.get('price')
+    if not price:
+        flash("The item may be available for free, no need to add to watch list.")
+        # return render_template('add_item.html')
+        return redirect("/add_item")
+    else:
+        price = float(price)
+
     image = item_info.get("image_url")
 
 

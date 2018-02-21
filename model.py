@@ -116,7 +116,7 @@ def example_data():
 
     sunglasses = Product(name="SojoS Fashion Polarized Sunglasses UV Mirrored Lens Oversize Metal Frame SJ1057",
         asin='B06XKNYYWY', 
-        url='https://www.amazon.com/dp/B06XKNYYWY/ref=sspa_dk_detail_1?psc=1&pd_rd_i=B06XKNYYWY&pd_rd_wg=i2ZAC&pd_rd_r=2JGB9BJ5SAGYXSD3PJQN&pd_rd_w=Pts4c ', 
+        url='https://www.amazon.com/dp/B06XKNYYWY/ref=sspa_dk_detail_1?psc=1&pd_rd_i=B06XKNYYWY&pd_rd_wg=i2ZAC&pd_rd_r=2JGB9BJ5SAGYXSD3PJQN&pd_rd_w=Pts4c', 
         price=1)
 
     yingying_watch = UserProduct(threshold=80, product_id=1, user_id=1)

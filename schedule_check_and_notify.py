@@ -1,6 +1,6 @@
 from model import User, Product, UserProduct, db, connect_to_db
 from twilio_text import send_text
-from amazon_web_scrape import parse
+from product_detail import get_item_info
 from flask import Flask
 import schedule
 import time
@@ -13,10 +13,9 @@ connect_to_db(app)
 def check_and_update_price():
     """web scrape prices for all products and update price if needed."""
     products = Product.query.all()
-
     for product in products:
-        product_info = parse(product.url)
-        price = float(product_info.get('SALE_PRICE')[1:])
+        product_info = get_item_info(product.asin)
+        price = float(product_info.get('price'))
         if product.price != price:
             product.price = price
             db.session.commit()
