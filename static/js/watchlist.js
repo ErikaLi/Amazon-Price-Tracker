@@ -73,7 +73,22 @@ function processAdd(result) {
 
     if (result.added) {
 
-        $("#new_item").prepend(result.html_content);
+        let html_content = `<li id=${result.product_id}>
+                          <b>${result.prod_name}</b><br>
+                          <img src = '${result.image_url}'><br>
+                          Current Price: ${result.price}<br>
+                          Wanted Price: $<span id=wanted_price${result.product_id}>${result.threshold}</span><br>
+                          <a href='${result.url}'>Buy now!</a></p>
+
+                          <form action='/update' method='POST' id='update_form${result.product_id}'>
+                            <input type='number' id='new_threshold${result.product_id}' name='new_threshold' step="1.00">
+                            <input type='submit' id='update_threshold' value='Update wanted price'>
+                          </form> 
+
+                            <input type='button' id="remove_item${result.product_id}" value='Remove item from wishlist'>
+                      </li>`;
+
+        $("#new_item").prepend(html_content);
 
     }
 

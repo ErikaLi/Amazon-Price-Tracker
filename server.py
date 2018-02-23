@@ -30,6 +30,9 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
+    if session.get("user_id"):
+        user = User.query.get(session.get("user_id"))
+        return render_template("index.html", name=user.fname)
 
     return render_template("index.html")
 
@@ -284,22 +287,16 @@ def add_item():
             db.session.commit()
 
             prod_id = current_prod.product_id
-            content = '''<li id={}>
-                        <b>{}</b><br>
-                        <img src = "{}"><br>
-                          Current Price: ${}<br>
-                          Wanted Price: $<span id='wanted_price{}'>{}</span><br>
-                          <a href="{}">Buy now!</a></p>
-                          <form action='/update' method='POST' id='update_form{}'>
-                            <input type='number' id='new_threshold{}' name='new_threshold' step="1.00">
-                            <input type='submit' id='update_threshold' value='Update wanted price'>
-                          </form> 
-                            <input type='button' id="remove_item{}" value='Remove item from wishlist'>'''.format(prod_id, current_prod.name, image_url, price, prod_id, threshold, url, prod_id, prod_id, prod_id)
             return jsonify({'message': "Item is successfully added!",
                 "redirect": False,
                 "empty": True,
                 "added": True,
-                "html_content": content
+                "product_id": prod_id,
+                "prod_name": current_prod.name,
+                "price": float(price),
+                "url": url,
+                "image_url": image_url,
+                'threshold': threshold
             })
 
     else:
@@ -310,8 +307,7 @@ def add_item():
 
         # create a userproduct entry and add it to the userproduct table
         timestamp = datetime.datetime.now()
-        current_userproduct = UserProduct(#original_price=price,
-                                          threshold=threshold,
+        current_userproduct = UserProduct(threshold=threshold,
                                           product_id=current_prod.product_id,
                                           user_id=session.get("user_id"),
                                           date_added=timestamp)
@@ -319,23 +315,17 @@ def add_item():
         db.session.commit()
 
         prod_id = current_prod.product_id
-        content = '''<li id={}>
-                    <b>{}</b><br>
-                    <img src = "{}"><br>
-                          Current Price: ${}<br>
-                          Wanted Price: $<span id='wanted_price{}'>{}</span><br>
-                          <a href="{}">Buy now!</a></p>
-                          <form action='/update' method='POST' id='update_form{}'>
-                            <input type='number' id='new_threshold{}' name='new_threshold' step="1.00">
-                            <input type='submit' id='update_threshold' value='Update wanted price'>
-                          </form>
-                            <input type='button' id="remove_item{}" value='Remove item from wishlist'>'''.format(prod_id, current_prod.name, image_url, price, prod_id, threshold, url, prod_id, prod_id, prod_id)
         
         return jsonify({'message': "Item is successfully added!",
                 "redirect": False,
                 "empty": True,
                 "added": True,
-                "html_content": content
+                "product_id": prod_id,
+                "prod_name": current_prod.name,
+                "price": float(price),
+                "url": url,
+                "image_url": image_url,
+                'threshold': threshold
 
         })
 
