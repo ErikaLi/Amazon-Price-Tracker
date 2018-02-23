@@ -11,7 +11,7 @@ from product_detail import get_item_info, get_asin
 
 import datetime
 
-import bcrypt
+from helper import *
 
 from password_check import password_check
 
@@ -44,9 +44,6 @@ def display_registration():
 @app.route('/register', methods=["POST"])
 def register_process():
     """Process registration form"""
-
-    # ask the user to reenter password and then confirm they match.
-    # get info from the AJAX request in register.js
     # all of the info will be in string format
     email = request.form.get('email')
     password = request.form.get('password')
@@ -68,9 +65,8 @@ def register_process():
         return jsonify(results)
 
     else:
-        # if the email is new, check that they enter every field in the correct format
         # enforce phone format
-        if not(phone.isdigit() and len(phone) == 10):
+        if not phone_check(phone):
             results = {"message": "Please enter a 10-digit phone number without any symbol",
                        "redirect": False,
                        "empty_password": True,
@@ -78,9 +74,8 @@ def register_process():
             return jsonify(results)
 
         # check if the two passwords match
-        if password == password1:
-            # enforce password format using a function in password_check.py
-            # if the passwords do not match, alert a message and empty out the password fields
+        if password_match(password, password1):
+            # enforce password format
             if not password_check(password):
                 results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one special character with minimum length of 8.",
                            "redirect": False,
@@ -88,7 +83,7 @@ def register_process():
                         }
                 return jsonify(results)
             # if everything is in the right format, add the user to the database
-            password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            password = encrypt(password)
             current_user = User(email=email, password=password, fname=fname, lname=lname, phone=phone)
             db.session.add(current_user)
             db.session.commit()
@@ -131,7 +126,7 @@ def process_password_change():
     user = User.query.get(session.get("user_id"))
 
     # if the user does not enter a correct current password, logout and redirect to login again
-    if not bcrypt.checkpw(old_password.encode('utf-8'), user.password.encode('utf-8')):
+    if not validate_password(old_password, user.password):
         session.pop("user_id")
         results = {"message": "The password you entered is incorrect, please sign in again.",
                    "redirect": True,
@@ -140,7 +135,7 @@ def process_password_change():
         return jsonify(results)
 
     # if the new passwords does not match, ask them to enter again and empty out all password fields
-    elif new_password != new_password1:
+    elif not password_match(new_password, new_password1):
         # use JS or AJAX to do this
         results = {"message": "The two passwords you enter do not match, please try again.",
                     "redirect": False,
@@ -148,23 +143,23 @@ def process_password_change():
                 }
         return jsonify(results)
 
-    else:
-        # if the new passwords are not in the right format, empty out all passwords and ask them to try again
-        if not password_check(new_password):
-            results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one symbol with minimum length 8.",
-                       "redirect": False,
-                       "empty_password": True,
-                        }
-            return jsonify(results)
-
-        user.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-        db.session.commit()
-        session.pop("user_id")
-        results = {"message": 'Your password was successfully reset, please sign in using your new password.',
-                    "redirect": True,
-                    'redirect_url': "/login",
-                }
+    # if the new passwords are not in the right format, empty out all passwords and ask them to try again
+    elif not password_check(new_password):
+        results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one symbol with minimum length 8.",
+                   "redirect": False,
+                   "empty_password": True,
+                    }
         return jsonify(results)
+
+    # if everything is in the right format, update password for current user and ask them to login again.
+    user.password = encrypt(new_password)
+    db.session.commit()
+    session.pop("user_id")
+    results = {"message": 'Your password was successfully reset, please sign in using your new password.',
+                "redirect": True,
+                'redirect_url': "/login",
+            }
+    return jsonify(results)
 
 
 @app.route('/login', methods=["GET"])
@@ -186,10 +181,11 @@ def login_process():
     password = request.form['password']
     current_user = User.query.filter(User.email == email).first()
 
-    if current_user and bcrypt.checkpw(password.encode('utf-8'), current_user.password.encode('utf-8')):
+    if current_user and validate_password(password, current_user.password):
         session['user_id'] = current_user.user_id
         flash("Successfully logged in!")
         return redirect("/watchlist")
+
     else:
         flash("Invalid log in, please try again.")
         return redirect("/login")
@@ -205,86 +201,115 @@ def logout_process():
 
     return redirect("/")
 
-@app.route('/add_item', methods=["GET"])
-def display_add_item():
-    """display form to add item."""
+# @app.route('/add_item', methods=["GET"])
+# def display_add_item():
+#     """display form to add item."""
 
-    if not session.get("user_id"):
-        return redirect("/")
-    return render_template("add_item.html")
+#     if not session.get("user_id"):
+#         return redirect("/")
+#     return render_template("add_item.html")
 
 
 
-@app.route('/add_item', methods=["POST"])
+@app.route('/wishlist_add', methods=["POST"])
 def add_item():
     """Add an item to the UserProduct table, and add it to the products table
-    if it does not already exist. If product already exists in the Product table,
-    update its price."""
+    if it does not already exist. If user is already watching the item, flask
+    a message and ask the user to update the wanted price in watchlist page."""
 
     url = request.form.get('url')
     asin = get_asin(url)
-    if not asin:
-        flash("The url you entered is not in the right format, please try again.")
-        # return render_template('add_item.html')
-        return redirect("/add_item")
 
+    # if cannot find asin from url, tell user to enter a correct url
+    if not asin:
+        return jsonify({'message': "The url you entered is not in the right format, please try again.",
+        # return render_template('add_item.html')
+                "redirect": False,
+                "empty": True
+        })
+
+    # user input of their wanted price
     threshold = float(request.form.get('threshold'))
-    # get item info from url
-    item_info = get_item_info(asin)
-        
+
+    # item info retrieve from amazon api
+    item_info = get_item_info(asin) 
     name = item_info.get('title')
     price = item_info.get('price')
+    image_url=item_info.get("image_url")
+
+    # if price is not available, item is usually free
     if not price:
-        flash("The item may be available for free, no need to add to watch list.")
-        # return render_template('add_item.html')
-        return redirect("/add_item")
-    else:
-        price = float(price)
-
-    image = item_info.get("image_url")
+        return jsonify({'message': "The item may be available for free, no need to add to watch list.",
+                "redirect": False,
+                "empty": True
+        })
 
 
-# results = { "template": render_template_as_string("/product_list")}
-    ### return jsonify(results)
-
-    current_prod = Product.query.filter(Product.asin == asin).first()
-    timestamp = datetime.datetime.now()
-    # use AJAX to handle this
+    # if the wanted price is greater than the current price of the product, ask user to enter again
     if threshold >= price:
-        flash("Please enter a wanted price lower than the price of the product.")
-        return redirect("/add_item")
+        return jsonify({'message': "Please enter a wanted price lower than the price of the product.",
+                    "redirect": False,
+                    "empty_threshold": True,
+                    "added": False
+        })
 
-    if current_prod:
-        # if the product already exists in the product table, check in the
+
+    # get the current product from database 
+    current_prod = Product.query.filter(Product.asin == asin).first()
+
+    # content to prepend to the existing page
+
+    # if the product already exists in the product table, check in the
         # userproduct table if the user has added this item before
+    if current_prod:
 
-        # if the user has already added this item, update the current price
-        # and ask to see if the user wants to update the threshold
-
-        # update the date_added, set original price to current price
-        # and new threshold in the userproduct table
         current_userproduct = UserProduct.query.filter_by(product_id=current_prod.product_id, user_id=session.get("user_id")).first()
-
+        
+        # if the user has already added this item, ask them to update in the wishlist
+        # maybe jump to that item and ask them to update?
         if current_userproduct:
-            # maybe ask the user to see if they want to redirect to watchlist&update the info
-            flash("Item has already been added, you may update your wanted price in watch list.")
-            return redirect("/watchlist")
+            return jsonify({'message': "Item has already been added, you may update your wanted price in watch list.",
+                "redirect": False,
+                "empty": True})
+
+        # if the user has not added this product before, add this to the userproduct table
+        # if it's on the add_item route, should redirect to watchlist, else prepend content in watchlist
         else:
-            current_userproduct = UserProduct(#original_price=price,
-                                              threshold=threshold,
+            timestamp = datetime.datetime.now()
+            current_userproduct = UserProduct(threshold=threshold,
                                               product_id=current_prod.product_id,
                                               user_id=session.get("user_id"),
                                               date_added=timestamp)
             db.session.add(current_userproduct)
             db.session.commit()
 
+            prod_id = current_prod.product_id
+            content = '''<li id={}>
+                        <b>{}</b><br>
+                        <img src = "{}"><br>
+                          Current Price: ${}<br>
+                          Wanted Price: $<span id='wanted_price{}'>{}</span><br>
+                          <a href="{}">Buy now!</a></p>
+                          <form action='/update' method='POST' id='update_form{}'>
+                            <input type='number' id='new_threshold{}' name='new_threshold' step="1.00">
+                            <input type='submit' id='update_threshold' value='Update wanted price'>
+                          </form> 
+                            <input type='button' id="remove_item{}" value='Remove item from wishlist'>'''.format(prod_id, current_prod.name, image_url, price, prod_id, threshold, url, prod_id, prod_id, prod_id)
+            return jsonify({'message': "Item is successfully added!",
+                "redirect": False,
+                "empty": True,
+                "added": True,
+                "html_content": content
+            })
+
     else:
         # if the item is not in the product table, add it to product table
-        current_prod = Product(name=name, asin=asin, image=image, url=url, price=price)
+        current_prod = Product(name=name, asin=asin, image=image_url, url=url, price=price)
         db.session.add(current_prod)
         db.session.commit()
 
         # create a userproduct entry and add it to the userproduct table
+        timestamp = datetime.datetime.now()
         current_userproduct = UserProduct(#original_price=price,
                                           threshold=threshold,
                                           product_id=current_prod.product_id,
@@ -293,13 +318,26 @@ def add_item():
         db.session.add(current_userproduct)
         db.session.commit()
 
+        prod_id = current_prod.product_id
+        content = '''<li id={}>
+                    <b>{}</b><br>
+                    <img src = "{}"><br>
+                          Current Price: ${}<br>
+                          Wanted Price: $<span id='wanted_price{}'>{}</span><br>
+                          <a href="{}">Buy now!</a></p>
+                          <form action='/update' method='POST' id='update_form{}'>
+                            <input type='number' id='new_threshold{}' name='new_threshold' step="1.00">
+                            <input type='submit' id='update_threshold' value='Update wanted price'>
+                          </form>
+                            <input type='button' id="remove_item{}" value='Remove item from wishlist'>'''.format(prod_id, current_prod.name, image_url, price, prod_id, threshold, url, prod_id, prod_id, prod_id)
+        
+        return jsonify({'message': "Item is successfully added!",
+                "redirect": False,
+                "empty": True,
+                "added": True,
+                "html_content": content
 
-    # if threshold >= price:
-    # # use ajax here to ask the user to reset the price
-    #     pass
-    flash("Your item has been successfully added!")
-    return redirect("/watchlist")
-
+        })
 
 
 
@@ -312,7 +350,7 @@ def display_watchlist():
     if not session.get('user_id'):
         return redirect("/")
 
-    userproduct_list = UserProduct.query.filter_by(user_id=session.get('user_id')).all()
+    userproduct_list = UserProduct.query.filter_by(user_id=session.get('user_id')).order_by(UserProduct.date_added.desc()).all()
     # use relationships to connect to products table and get product name and url
     # maybe use userproduct.product, figure out why it does not work
     for userproduct in userproduct_list:
@@ -326,23 +364,6 @@ def display_watchlist():
     return render_template("watchlist.html", userproducts=userproduct_list)
 
 
-# @app.route('/update', methods=["POST"])
-# def update_threshold():
-#     """Update user's threshold for a certain item in the watchlist."""
-
-#     new_threshold = request.form.get('new_threshold')
-#     prod_id = request.form.get("product_id")
-#     # if new_threshold is empty, redirect to wishilist
-#     if not new_threshold:
-#         flash("This field cannot be empty")
-#         return redirect("/watchlist")
-
-#     current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
-#     current_userproduct.threshold = new_threshold
-#     db.session.commit()
-#     flash("Your wanted price has been successfully updated!")
-#     return redirect("/watchlist")
-
 @app.route('/update', methods=["POST"])
 def update_threshold():
     """Update user's threshold for a certain item in the watchlist."""
@@ -352,8 +373,9 @@ def update_threshold():
 
     if new_threshold >= Product.query.get(prod_id).price:
         results = {'message': "Please enter a wanted price lower than the product price.",
-                    'new': False,
-                    'empty': True
+                    'valid_threshold': False,
+                    'empty': True,
+                    'product_id': prod_id
         }
         return jsonify(results)
     
@@ -362,9 +384,11 @@ def update_threshold():
     db.session.commit()
 
     results = {'message': "Your wanted price has been successfully updated!",
-                'new': True,
+                'valid_threshold': True,
                 'new_price': new_threshold,
-                'empty': False
+                'empty': False,
+                'product_id': prod_id
+
                 }
     return jsonify(results)
 
@@ -389,6 +413,7 @@ def remove_item():
     result = {'message': 'You successfully deleted your item!',
                 'product_id': prod_id}
     return jsonify(result)
+
 
 @app.route("/profile", methods=["GET"])
 def display_profile():

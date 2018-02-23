@@ -1,4 +1,28 @@
 import re
+import bcrypt
+
+
+def phone_check(phone_num):
+    """Check the format of phone number."""
+    return phone_num.isdigit() and len(phone_num) == 10
+
+
+def password_match(p1, p2):
+    """Check that the two passwords matched."""
+    return p1 == p2
+
+
+def validate_password(password_entered, real_password):
+    """Validate the password user entered matches the password in database."""
+    entered = password_entered.encode('utf-8')
+    real = real_password.encode('utf-8')
+    return bcrypt.checkpw(entered, real)
+
+
+def encrypt(password):
+    """encrypt password using the bcrypt library in python."""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
 
 # https://stackoverflow.com/questions/16709638/checking-the-strength-of-a-password-how-to-check-conditions
 def password_check(password):

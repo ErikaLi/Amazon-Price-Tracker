@@ -1,23 +1,23 @@
 "use strict";
 
 function processUpdate(result) {
-    console.log(result)
     alert(result.message);
-    if (result.new) {
-        let newPrice = +result.new_price
-        $('#wanted_price').html(newPrice.toFixed(2));
+    if (result.valid_threshold) {
+        let newPrice = result.new_price;
+        $('#wanted_price'+result.product_id).html(newPrice.toFixed(2));
     }
     if (result.empty) {
-        $('#new_threshold').val('');
+        $('#new_threshold'+result.product_id).val('');
     }
 }
 
+
 function getUpdateInfo(evt) {
     evt.preventDefault();
-
+    var id = evt.currentTarget.id.replace("update_form", "");
     var formInputs = {
-        "new_threshold": $("#new_threshold").val(),
-        "product_id": $("#product_id_update").val(),
+        "new_threshold": $("#new_threshold"+id).val(),
+        "product_id": id,
     };
 
     $.post("/update", 
@@ -25,16 +25,17 @@ function getUpdateInfo(evt) {
            processUpdate);
 }
 
+
 function processRemoval(result) {
-    alert(result.message)
-    $('#'+result.product_id).hide()
+    alert(result.message);
+    $('#'+result.product_id).hide();
 }
 
 
 function deleteItem(evt) {
     evt.preventDefault();
 
-    var id = evt.currentTarget.id.replace("remove_item", "")
+    var id = evt.currentTarget.id.replace("remove_item", "");
 
     var formInputs = {
         "product_id": id,
@@ -43,6 +44,38 @@ function deleteItem(evt) {
     $.post("/remove", 
            formInputs,
            processRemoval);
+
+}
+
+
+function addItem(evt) {
+    evt.preventDefault();
+
+    var formInputs = {
+        "url": $("#url_add").val(),
+        "threshold": $("#threshold_add").val(),
+    };
+
+    $.post("/wishlist_add", formInputs, processAdd);
+}
+
+
+function processAdd(result) {
+    alert(result.message);
+
+    if (result.redirect) {
+        window.location.href = result.redirect_url;
+    }
+
+    if (result.empty) {
+        $('#threshold_add').val('');
+    }
+
+    if (result.added) {
+
+        $("#new_item").prepend(result.html_content);
+
+    }
 
 }
 
@@ -74,7 +107,12 @@ function deleteItem(evt) {
 // $('#add_item').on("click", addItem);
 
 
-$("#update_form").on("submit", getUpdateInfo);
+$('ul').on("submit", "form[id^=update_form]", getUpdateInfo);
 
-$('input[id^=remove_item]').on("click", deleteItem);
+// parent, descendant contained in the parent
+$('ul').on("click", "input[id^=remove_item]", deleteItem);
+
+
+$("#add_item_form").on("submit", addItem);
+
 
