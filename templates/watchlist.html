@@ -24,7 +24,7 @@
           <a href="{{ uprod.url }}">Buy now!</a></p>
 
           <form action='/update' method='POST' id='update_form{{ uprod.product_id }}'>
-            <input type='number' id='new_threshold{{ uprod.product_id }}' name='new_threshold' step="1.00">
+            <input type='number' id='new_threshold{{ uprod.product_id }}' name='new_threshold' step="1.00" required>
             <input type='submit' id='update_threshold' value='Update wanted price'>
           </form> 
 

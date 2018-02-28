@@ -43,7 +43,8 @@ class Product(db.Model):
     url = db.Column(db.String(500), nullable=False)
     image = db.Column(db.String(500), nullable=True)
     price = db.Column(db.Float, nullable=False)
-    #category = db.Column(db.String(128), nullable=True)
+    # use category to give recommendations
+    category = db.Column(db.String(128), nullable=True)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -74,6 +75,21 @@ class UserProduct(db.Model):
 
         return "\n<Threshold user_id={} product_id={} threshold={}>".format(self.user_id, self.product_id, self.threshold)
 
+class Recommendation(db.Model):
+    """A table that contains recommended products for a user. 
+    Each product in the product table has a list of recommened products."""
+
+    __tablename__ = "recommendations"
+
+    # use asin as primary key to avoid collision
+    recommendation_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    asin = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(256), nullable=False)
+    url = db.Column(db.String(500), nullable=False)
+    image = db.Column(db.String(500), nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    product = db.relationship('Product', backref='recommendations')
 
 
 # only use to implement visualizations for price history

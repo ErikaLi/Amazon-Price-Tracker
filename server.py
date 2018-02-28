@@ -5,15 +5,13 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask import (Flask, render_template, redirect, request, flash,
                    session, jsonify)
 
-from model import User, Product, UserProduct, db, connect_to_db
+from model import User, Product, UserProduct, Recommendation, db, connect_to_db
 
-from product_detail import get_item_info, get_asin
+from product_detail import *
 
 import datetime
 
 from helper import *
-
-from password_check import password_check
 
 
 app = Flask(__name__)
@@ -30,9 +28,19 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
+    # if this user exists, get all products that this user is watching, and find
+    # recommended items related to these products
     if session.get("user_id"):
         user = User.query.get(session.get("user_id"))
-        return render_template("index.html", name=user.fname)
+        recommended = []
+        # get all products using the userproduct table
+        userproduct_list = UserProduct.query.filter_by(user_id=session.get('user_id')).order_by(UserProduct.date_added.desc()).all()
+        for userprod in userproduct_list:
+            prod_id = userprod.product_id
+            prod_rec = Recommendation.query.filter_by(product_id=prod_id).all()
+            recommended.extend(prod_rec)
+        # recommended = user.userproducts.products.recommendations
+        return render_template("index.html", name=user.fname, recommendations=recommended)
 
     return render_template("index.html")
 
@@ -218,7 +226,8 @@ def logout_process():
 def add_item():
     """Add an item to the UserProduct table, and add it to the products table
     if it does not already exist. If user is already watching the item, flask
-    a message and ask the user to update the wanted price in watchlist page."""
+    a message and ask the user to update the wanted price in watchlist page.
+    When adding an item, also add its similar items to recommendation table."""
 
     url = request.form.get('url')
     asin = get_asin(url)
@@ -238,7 +247,8 @@ def add_item():
     item_info = get_item_info(asin) 
     name = item_info.get('title')
     price = item_info.get('price')
-    image_url=item_info.get("image_url")
+    image_url = item_info.get("image_url")
+    category = item_info.get("category")
 
     # if price is not available, item is usually free
     if not price:
@@ -301,7 +311,7 @@ def add_item():
 
     else:
         # if the item is not in the product table, add it to product table
-        current_prod = Product(name=name, asin=asin, image=image_url, url=url, price=price)
+        current_prod = Product(name=name, asin=asin, image=image_url, url=url, price=price, category=category)
         db.session.add(current_prod)
         db.session.commit()
 
@@ -315,7 +325,16 @@ def add_item():
         db.session.commit()
 
         prod_id = current_prod.product_id
-        
+        # add similar items of this product to the recommendation table
+        similar_products = search_by_keywords(category)
+        print 'similar', similar_products
+        for similar_product in similar_products:
+            item = Recommendation(name=similar_product.title, asin=similar_product.asin,
+                                 price=similar_product.price_and_currency[0], image=similar_product.large_image_url,
+                                 product_id=prod_id, url=similar_product.offer_url)
+            db.session.add(item)
+            db.session.commit()        
+
         return jsonify({'message': "Item is successfully added!",
                 "redirect": False,
                 "empty": True,
@@ -387,8 +406,8 @@ def update_threshold():
 @app.route('/remove', methods=["POST"])
 def remove_item():
     """remove item from user's watchlist in the userproduct table
-        and removes it from the product list if userproduct table does not contain 
-        this product_id."""
+        and removes it from the product list and recommendations related to this 
+        product if userproduct table does not contain this product_id."""
 
     prod_id = request.form.get("product_id")
     current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
@@ -397,7 +416,11 @@ def remove_item():
     remaining_userproduct = UserProduct.query.filter_by(product_id=prod_id).all()
     
     if not remaining_userproduct:
+        # remove recommendations for this product
         current_product = Product.query.get(prod_id)
+        recommended_products = Recommendation.query.filter_by(product_id=prod_id).all()
+        for rec in recommended_products:
+            db.session.delete(rec)       
         db.session.delete(current_product)
         db.session.commit()
     result = {'message': 'You successfully deleted your item!',

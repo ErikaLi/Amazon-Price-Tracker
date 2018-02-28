@@ -16,16 +16,35 @@ associate_tag = "mobilead0cd46-20"
 amazon = AmazonAPI(access_key, secret_key, associate_tag)
 
 def get_item_info(asin):
+    """Call Amazon API to get product info using asin."""
     product = amazon.lookup(ItemId=asin)
     return {"price": product.price_and_currency[0],
     'title': product.title,
-    'image_url': product.large_image_url
+    'image_url': product.large_image_url,
+    'category': product.product_type_name
 
     }
     # print product.price_and_currency
     # print product.title
     # print product.availability
     # print product.large_image_url
+
+def search_by_keywords(title, n=5):
+    products = amazon.search_n(n, Keywords=title, SearchIndex='All')
+    return products
+
+
+def get_similar_items(asin):
+    """Call Amazon API to get similar products but of lower prices."""
+    products = amazon.similarity_lookup(ItemId=asin)
+    #cheaper = [product for product in products if product.price_and_currency[0] < price]
+    if len(products) > 5:
+        products = products[:5]
+    return products
+
+
+
+
 
 def get_asin(string):
     """ Get ASIN string from Amazon url
@@ -48,7 +67,7 @@ def get_asin(string):
     else:
         m = re.search(r'(gp/product/)[a-zA-Z0-9_]{10}(/)', string)
         if m:
-            return m.group()[4:-1]
+            return m.group()[11:-1]
         else:
             m = re.search(r'(/dp/)[a-zA-Z0-9_]{10}(\?)', string)
             if m:

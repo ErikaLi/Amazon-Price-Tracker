@@ -3,11 +3,16 @@
 
 {% if session.get('user_id') %}
     <!-- personalize welcome message -->
-    Hi, {{ name }}! Here is a list of things that you can do:
-    <div><a href="/watchlist">Add an item</a></div>
-    <div><a href="/watchlist">View your watch list</a></div>
-    <div><a href="/divrofile">View your profile</a></div>
-    <div><a href="/logout">Log out of your account</a></div>
+    Hi, {{ name }}! Below are a list of products we recommend for you:
+    <ul id='recommendation_list'>
+    {% for rec in recommendations %}
+      <li id={{rec.recommendation_id}}>
+          <b>{{rec.name}}</b><br>
+          <img src = "{{ rec.image }}"><br>
+          Current Price: ${{ rec.price }}<br>
+          <a href="{{ rec.url }}">Buy now!</a></p>
+      </li>
+    {% endfor %}
 
 {% else %}
     Welcome to Amazon Price Tracker 1.0!
