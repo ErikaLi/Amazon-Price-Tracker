@@ -327,9 +327,10 @@ def add_item():
         prod_id = current_prod.product_id
         # add similar items of this product to the recommendation table
         similar_products = search_by_keywords(category)
-        print 'similar', similar_products
         for similar_product in similar_products:
-            if similar_product.asin != asin:
+            # check if product already exists in recommendation table
+            curr_similar = Recommendation.query.filter_by(asin=similar_product.asin).first()
+            if not curr_similar and similar_product.asin != asin:
                 item = Recommendation(name=similar_product.title, asin=similar_product.asin,
                                      price=similar_product.price_and_currency[0], image=similar_product.large_image_url,
                                      product_id=prod_id, url=similar_product.offer_url)
