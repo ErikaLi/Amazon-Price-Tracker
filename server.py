@@ -329,11 +329,12 @@ def add_item():
         similar_products = search_by_keywords(category)
         print 'similar', similar_products
         for similar_product in similar_products:
-            item = Recommendation(name=similar_product.title, asin=similar_product.asin,
-                                 price=similar_product.price_and_currency[0], image=similar_product.large_image_url,
-                                 product_id=prod_id, url=similar_product.offer_url)
-            db.session.add(item)
-            db.session.commit()        
+            if similar_product.asin != asin:
+                item = Recommendation(name=similar_product.title, asin=similar_product.asin,
+                                     price=similar_product.price_and_currency[0], image=similar_product.large_image_url,
+                                     product_id=prod_id, url=similar_product.offer_url)
+                db.session.add(item)
+                db.session.commit()        
 
         return jsonify({'message': "Item is successfully added!",
                 "redirect": False,
@@ -426,6 +427,32 @@ def remove_item():
     result = {'message': 'You successfully deleted your item!',
                 'product_id': prod_id}
     return jsonify(result)
+
+# this requires some user reference for each recommendation so that what the user 
+# is watching will not be display on the homepage.
+
+# @app.route('/add_rec', methods=["POST"])
+# def add_recommendation():
+#     """add the recommended item to the product table and UserProduct table
+#      if it does not alreay exist. Remove it"""
+
+#     prod_id = request.form.get("product_id")
+#     current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
+#     db.session.delete(current_userproduct)
+#     db.session.commit()
+#     remaining_userproduct = UserProduct.query.filter_by(product_id=prod_id).all()
+    
+#     if not remaining_userproduct:
+#         # remove recommendations for this product
+#         current_product = Product.query.get(prod_id)
+#         recommended_products = Recommendation.query.filter_by(product_id=prod_id).all()
+#         for rec in recommended_products:
+#             db.session.delete(rec)       
+#         db.session.delete(current_product)
+#         db.session.commit()
+#     result = {'message': 'You successfully deleted your item!',
+#                 'product_id': prod_id}
+#     return jsonify(result)
 
 
 @app.route("/profile", methods=["GET"])

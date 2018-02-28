@@ -2,6 +2,7 @@ asn1crypto==0.24.0
 backports.shutil-get-terminal-size==1.0.0
 bcrypt==3.1.4
 blinker==1.4
+bottlenose==1.1.8
 certifi==2018.1.18
 cffi==1.11.4
 chardet==3.0.4
@@ -33,6 +34,7 @@ pycparser==2.18
 Pygments==2.2.0
 PyJWT==1.5.3
 pyOpenSSL==17.5.0
+python-amazon-simple-product-api==2.2.11
 python-crontab==2.2.8
 python-dateutil==2.6.1
 pytz==2018.3

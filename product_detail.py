@@ -21,7 +21,7 @@ def get_item_info(asin):
     return {"price": product.price_and_currency[0],
     'title': product.title,
     'image_url': product.large_image_url,
-    'category': product.product_type_name
+    'category': product.brand
 
     }
     # print product.price_and_currency
@@ -29,7 +29,7 @@ def get_item_info(asin):
     # print product.availability
     # print product.large_image_url
 
-def search_by_keywords(title, n=5):
+def search_by_keywords(title, n=2):
     products = amazon.search_n(n, Keywords=title, SearchIndex='All')
     return products
 
