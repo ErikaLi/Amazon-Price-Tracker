@@ -4,7 +4,7 @@ function processUpdate(result) {
     alert(result.message);
     if (result.valid_threshold) {
         let newPrice = result.new_price;
-        $('#wanted_price'+result.product_id).html(newPrice.toFixed(2));
+        $('#wanted_price'+result.product_id).html(newPrice);
     }
     if (result.empty) {
         $('#new_threshold'+result.product_id).val('');

@@ -1,5 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="homepage-hero-module">
+    <div class="video-container">
+        <div class="filter"></div>
+        <video autoplay loop class="fillWidth">
+            <source src="static/Workaholic.mp4" type="video/mp4" />Your browser does not support the video tag. I suggest you upgrade your browser.
+            <source src="static/Workaholic.webm" type="video/webm" />Your browser does not support the video tag. I suggest you upgrade your browser.
+        </video>
+        <div class="poster hidden">
+            <img src="static/Workaholic.jpg" alt="">
+        </div>
+    </div>
+</div>
 
 {% if session.get('user_id') %}
     <!-- personalize welcome message -->

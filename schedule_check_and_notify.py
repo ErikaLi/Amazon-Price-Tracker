@@ -1,4 +1,4 @@
-from model import User, Product, UserProduct, db, connect_to_db
+from model import *
 from twilio_text import send_text
 from product_detail import get_item_info
 from flask import Flask
@@ -25,13 +25,18 @@ def notify(user_id, product_id_lst):
     containing info about products that drops below threshold."""
     curr_user = User.query.get(user_id)
     phone = curr_user.phone
+    product_info_string = ''
     # personalize message using product_id_lst
-    message = "Hi {}, one or more items that you are watching fall below your wanted price. Log in to check!".format(curr_user.fname)
+    for i in range(len(product_id_lst)):
+        prod_id = product_id_lst[i]
+        prod = Product.query.get(prod_id)
+        product_info_string += "\n Current Price: ${}\n {}".format(prod.price, prod.url)
+
+    message = "Hi {}, one or more items that you are watching are on sale. Click to buy! {}".format(curr_user.fname, product_info_string)
     send_text(phone, message)
 
     # email
     # use email library to send email to user regarding their products
-
 
 def check_price(user_id):
     """For each product of user of user_id, check its current price.
@@ -64,16 +69,16 @@ def check_and_notify():
     # email users if the list is not empty
 
     # UNCOMMENT TO RUN TESTS
-    # user_id_list = []
+    user_id_list = []
     all_users = User.query.all()
     for user in all_users:
         product_id_lst = check_price(user.user_id)
         if product_id_lst:
             notify(user.user_id, product_id_lst)
             # UNCOMMENT TO RUN TESTS
-            # user_id_list.append(user.user_id)
+            user_id_list.append(user.user_id)
     # UNCOMMENT TO RUN TESTS
-    # return user_id_list
+    return user_id_list
             
 
 if __name__ == "__main__":

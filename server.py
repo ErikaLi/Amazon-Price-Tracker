@@ -242,11 +242,13 @@ def add_item():
 
     # user input of their wanted price
     threshold = float(request.form.get('threshold'))
+    threshold = '{0:.2f}'.format(threshold)
 
     # item info retrieve from amazon api
     item_info = get_item_info(asin) 
     name = item_info.get('title')
     price = item_info.get('price')
+    price = '{0:.2f}'.format(price)
     image_url = item_info.get("image_url")
     category = item_info.get("category")
 

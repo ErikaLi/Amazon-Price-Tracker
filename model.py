@@ -135,11 +135,11 @@ def example_data():
         url='https://www.amazon.com/dp/B06XKNYYWY/ref=sspa_dk_detail_1?psc=1&pd_rd_i=B06XKNYYWY&pd_rd_wg=i2ZAC&pd_rd_r=2JGB9BJ5SAGYXSD3PJQN&pd_rd_w=Pts4c', 
         price=1)
 
-    yingying_watch = UserProduct(threshold=80, product_id=1, user_id=1)
+    yingying_watch = UserProduct(threshold=1000, product_id=1, user_id=1)
     henry_watch = UserProduct(threshold=30, product_id=1, user_id=2)
     henry_sunglasses = UserProduct(threshold=50, product_id=2, user_id=2)
 
-    db.session.add_all([yingying, henry, chloe, sunglasses, watch, yingying_watch, henry_watch, henry_sunglasses])
+    db.session.add_all([yingying, henry, chloe, watch, sunglasses, yingying_watch, henry_watch, henry_sunglasses])
     db.session.commit()
 
 
