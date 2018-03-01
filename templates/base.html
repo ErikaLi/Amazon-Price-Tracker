@@ -3,6 +3,7 @@
 <head>
   <title>Amazon Price Tracker</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel='stylesheet', href='static/tracker.css'>
 </head>
 
 <body>
@@ -73,12 +74,40 @@
       </div>
     </nav>
     {% endif %}
-  {% with messages = get_flashed_messages() %}
-      {% for message in messages %}
-          <div class="alert alert-warning">{{ message }}</div>
-      {% endfor %}
-  {% endwith %}
-  {% block content %} put your content here {% endblock %}
+
+{% with messages = get_flashed_messages() %}
+    {% for message in messages %}
+        <div class="alert alert-warning">{{ message }}</div>
+    {% endfor %}
+{% endwith %}
+
+  
+<link href="static/jquery.modal.css" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="static/jquery.modal.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="http://code.jquery.com/jquery.js"></script>
+{% block content %} put your content here {% endblock %}
+  
+{% block JQ %}{% endblock %}
+<br><br><br>
+<footer id='foot-logo'> &copy; 2018: Amazon Price Tracker </footer>
+<script>
+    $(function() {
+            $('#foot-logo').css({
+                'position' : 'absolute',
+                'left' : '50%',
+                'bottom' : '0px',
+                'margin-left' : function() {return -$(this).outerWidth()/2},
+                'margin-top' : function() {return -$(this).outerHeight()/2},
+                'color' : 'white'
+            });
+        });
+</script>
+
 
 </body>
 </html>

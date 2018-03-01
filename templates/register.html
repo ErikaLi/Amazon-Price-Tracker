@@ -1,18 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
 
-Hi, welcome to Amazon Price Tracker!
-Please fill out the information below to register for a new account!
-<form action='/register', method='POST' id='regForm'>
-    First Name: <input type='text', id='fname', name='fname' required><br>
-    Last Name: <input type='text', id='lname', name='lname' required><br>
-    Email: <input type='email', id='email', name='email' required><br>
-    Phone: <input type='tel', id='phone', name='phone' required><br>
-    Password: <input type='password', id='password', name='password' required><br>
-    Re-enter Password: <input type='password', id='password1', name='password1' required><br>
-    <input type='submit', id='registration', value='Register for a new account' required>
-</form>
+<div id="registration-form">
+    <h3>Sign Up for a New Account</h3>
+    <form action='/register' method='POST' id='regForm'>
+        First Name: <input type='text' id='fname' name='fname' placeholder='Ballonicorn' maxlength='64' required><br>
+        Last Name: <input type='text' id='lname' name='lname' placeholder='Unicorn' maxlength='64' required><br>
+        Email: <input type='email' id='email' name='email' placeholder='pricetracker@gmail.com' maxlength='64' required><br>
+        Phone: <input type='tel' id='phone' name='phone' placeholder='0123456789' required><br>
+        Password: <input type='password' id='password' name='password' maxlength='30' minlength='8' placeholder='password' required><br>
+        Re-enter Password: <input type='password' id='password1' name='password1' placeholder='password' required><br>
+        <input type='submit' id='registration' value='Sign Up' required>
+    </form>
+</div>
 
-<script src="http://code.jquery.com/jquery.js"></script>
 <script src="/static/js/register.js"></script>
 {% endblock %}
+
+
+{% block JQ %}
+    <script>
+        $(function() {
+            $('#registration-form').css({
+                'position' : 'absolute',
+                'left' : '50%',
+                'top' : '50%',
+                'margin-left' : function() {return -$(this).outerWidth()/2},
+                'margin-top' : function() {return -$(this).outerHeight()/2},
+            });
+        });
+    </script>
+{% endblock%}

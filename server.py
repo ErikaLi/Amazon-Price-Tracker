@@ -70,7 +70,7 @@ def register_process():
         # redirects them to login if the email is already in use
         results = {"message": "This email is already in use. Please log in to your account.",
                    "redirect": True,
-                   "redirect_url": "/login",
+                   "redirect_url": "/",
                    "empty_password": False,
                     }
         return jsonify(results)
@@ -88,7 +88,7 @@ def register_process():
         if password_match(password, password1):
             # enforce password format
             if not password_check(password):
-                results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one special character with minimum length of 8.",
+                results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one special character.",
                            "redirect": False,
                            "empty_password": True,
                         }
@@ -101,7 +101,7 @@ def register_process():
 
             results = {"message": "Successfully registered! Log in to your account now.",
                        "redirect": True,
-                       "redirect_url": "/login",
+                       "redirect_url": "/",
                        "empty_password": False,
                     }
             return jsonify(results)
@@ -141,7 +141,7 @@ def process_password_change():
         session.pop("user_id")
         results = {"message": "The password you entered is incorrect, please sign in again.",
                    "redirect": True,
-                   'redirect_url': '/login',
+                   'redirect_url': '/',
                 }
         return jsonify(results)
 
@@ -156,7 +156,7 @@ def process_password_change():
 
     # if the new passwords are not in the right format, empty out all passwords and ask them to try again
     elif not password_check(new_password):
-        results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one symbol with minimum length 8.",
+        results = {"message": "Please enter a password with at least one uppercase letter, one lowercase letter, one digit, and one special character.",
                    "redirect": False,
                    "empty_password": True,
                     }
@@ -168,20 +168,20 @@ def process_password_change():
     session.pop("user_id")
     results = {"message": 'Your password was successfully reset, please sign in using your new password.',
                 "redirect": True,
-                'redirect_url': "/login",
+                'redirect_url': "/",
             }
     return jsonify(results)
 
 
-@app.route('/login', methods=["GET"])
-def login_form():
-    """Display login form"""
+# @app.route('/login', methods=["GET"])
+# def login_form():
+#     """Display login form"""
 
-    if session.get("user_id"):
-        flash("Congratulations, you are already logged in!")
-        return redirect("/")
+#     if session.get("user_id"):
+#         flash("Congratulations, you are already logged in!")
+#         return redirect("/")
 
-    return render_template('login.html')
+#     return render_template('login.html')
 
 
 @app.route('/login', methods=["POST"])
@@ -189,7 +189,7 @@ def login_process():
     """Process login form"""
 
     email = request.form['email']
-    password = request.form['password']
+    password = request.form['pw']
     current_user = User.query.filter(User.email == email).first()
 
     if current_user and validate_password(password, current_user.password):
@@ -199,7 +199,7 @@ def login_process():
 
     else:
         flash("Invalid log in, please try again.")
-        return redirect("/login")
+        return redirect("/")
 
 
 @app.route('/logout', methods=["GET"])

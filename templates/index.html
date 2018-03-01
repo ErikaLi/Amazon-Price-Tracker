@@ -1,17 +1,5 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="homepage-hero-module">
-    <div class="video-container">
-        <div class="filter"></div>
-        <video autoplay loop class="fillWidth">
-            <source src="static/Workaholic.mp4" type="video/mp4" />Your browser does not support the video tag. I suggest you upgrade your browser.
-            <source src="static/Workaholic.webm" type="video/webm" />Your browser does not support the video tag. I suggest you upgrade your browser.
-        </video>
-        <div class="poster hidden">
-            <img src="static/Workaholic.jpg" alt="">
-        </div>
-    </div>
-</div>
 
 {% if session.get('user_id') %}
     <!-- personalize welcome message -->
@@ -27,11 +15,65 @@
     {% endfor %}
 
 {% else %}
-    Welcome to Amazon Price Tracker 1.0!
-    <div>Already has an account? <a href="/login">Log in</a></div>
-    <div>Need an account? <a href="/register">Register</a></div>
+    <div class="homepage-hero-module">
+    <div class="video-container">
+        <div class="filter"></div>
+        <video autoplay loop class="fillWidth">
+            <source src="static/Workaholic.mp4" type="video/mp4" />Your browser does not support the video tag. I suggest you upgrade your browser.
+            <source src="static/Workaholic.webm" type="video/webm" />Your browser does not support the video tag. I suggest you upgrade your browser.
+        </video>
+        <div class="poster hidden">
+            <img src="static/Workaholic.jpg" alt="">
+        </div>
+    </div>
+    </div>
+
+    <div id="sign-in-box">
+    <div id='sign-in-form'>
+    <h3>Welcome to Amazon Price Tracker 1.0! </h3> 
+    <form class='sign-in' action='/login' method='POST'>
+            <label name='sign-in-page'> 
+                <b>Email: </b><input type="email" id="email" name="email" placeholder='email@domain.com' maxlength='256' required><br>
+                <b>Password: </b><input type="password" id="pw" name="pw" placeholder='cAsE SeNsItiVe' required>
+            </label><br><br>
+        <div id='submit-buttons'>
+                <input type="submit" value="Sign-in"><button type='button' id="register-button">Register!</button>
+        </div>
+        </form>
+    </div>
+</div>
 {% endif %}
 
+{% endblock %}
+
+{% block JQ %}
+    <script>
+    $(function() {
+            $('.homepage-hero-module').css({
+                'position' : 'absolute',
+                'top' : '-20px',
+                'left' : '-20px',
+                'width' : '100%',
+                'z-index' : -1
+            });
+        });
+        $(function() {
+            $('#sign-in-form').css({
+                'position' : 'absolute',
+                'left' : '50%',
+                'top' : '50%',
+                'padding' : '1%',
+                'margin-left' : function() {return -$(this).outerWidth()/2},
+                'margin-top' : function() {return -$(this).outerHeight()/2},
+                'background': 'rgb(255, 255, 255)',
+                'background': 'rgba(255, 255, 255, 0.1)'
+            });
+        });
+    $('#register-button').on('click', function(){
+        window.location.href='/register';
+    });
+        
+    </script>
 {% endblock %}
 
 <!-- <form action='/add_rec' method='POST' id='add_rec{{ rec.recommendation_id }}'>
