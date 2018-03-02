@@ -3,15 +3,17 @@
 
 {% if session.get('user_id') %}
     <!-- personalize welcome message -->
-    Hi, {{ name }}! Below are a list of products we recommend for you:
+    <h4>Hi, {{ name }}! Here are products that you may be interested in:</h4>
     <ul id='recommendation_list'>
     {% for rec in recommendations %}
-      <li id={{rec.recommendation_id}}>
-          <b>{{rec.name}}</b><br>
+    <br>
+      <div class='product_box' id={{rec.recommendation_id}}>
           <img src = "{{ rec.image }}"><br>
-          Current Price: ${{ rec.price }}<br>
+          <span class='product_name'>{{rec.name}}</span><br>
+          Current Price: <span class='current_price'>${{ rec.price }}</span><br>
           <a href="{{ rec.url }}">Buy now!</a></p>
-      </li>
+      </div>
+  </br>
     {% endfor %}
 
 {% else %}
@@ -33,8 +35,10 @@
     <h3>Welcome to Amazon Price Tracker 1.0! </h3> 
     <form class='sign-in' action='/login' method='POST'>
             <label name='sign-in-page'> 
-                <b>Email: </b><input type="email" id="email" name="email" placeholder='email@domain.com' maxlength='256' required><br>
-                <b>Password: </b><input type="password" id="pw" name="pw" placeholder='cAsE SeNsItiVe' required>
+                <b>Email: </b><br>
+                <input type="email" id="email" name="email" placeholder='email@domain.com' maxlength='256' required><br>
+                <b>Password: </b><br>
+                <input type="password" id="pw" name="pw" placeholder='cAsE SeNsItiVe' required>
             </label><br><br>
         <div id='submit-buttons'>
                 <input type="submit" value="Sign-in"><button type='button' id="register-button">Register!</button>
@@ -66,7 +70,7 @@
                 'margin-left' : function() {return -$(this).outerWidth()/2},
                 'margin-top' : function() {return -$(this).outerHeight()/2},
                 'background': 'rgb(255, 255, 255)',
-                'background': 'rgba(255, 255, 255, 0.1)'
+                'background': 'rgba(255, 255, 255, 0.3)'
             });
         });
     $('#register-button').on('click', function(){

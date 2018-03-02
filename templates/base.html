@@ -7,8 +7,8 @@
 </head>
 
 <body>
-  {% if not session.get('user_id') %}
-  <nav class="navbar navbar-default">
+  {% if session.get('user_id') %}
+    <nav class="navbar navbar-inverse">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -23,46 +23,13 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link" href="/login">Log in</a>
-              </li>
-              <li class="nav-item">
-                <!-- show logout if there user is in the session -->
-                <a class="nav-link" href="/register">Register</a>
-              </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-    {% else %}
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">Amazon Price Tracker</a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-             <!--  <li class="nav-item">
-                <a class="nav-link" href="/add_item">Add an Item</a>
-              </li> -->
-              <!-- <li class="nav-item">
-                <a class="nav-link" href="#">Shop</a>
-              </li> -->
-              <li class="nav-item">
-                <a class="nav-link" href="/watchlist">Watch List</a>
-              </li>
               <li class="nav-item">
                 <a class="nav-link" href="/watchlist">Watch a new item</a>
               </li>
               <li class="nav-item">
+              <li class="nav-item">
+                <a class="nav-link" href="/watchlist">Your Watch List</a>
+              </li>
                 <a class="nav-link" href="/profile">Profile</a>
               </li>
               <li class="nav-item">
@@ -95,18 +62,6 @@
 {% block JQ %}{% endblock %}
 <br><br><br>
 <footer id='foot-logo'> &copy; 2018: Amazon Price Tracker </footer>
-<script>
-    $(function() {
-            $('#foot-logo').css({
-                'position' : 'absolute',
-                'left' : '50%',
-                'bottom' : '0px',
-                'margin-left' : function() {return -$(this).outerWidth()/2},
-                'margin-top' : function() {return -$(this).outerHeight()/2},
-                'color' : 'white'
-            });
-        });
-</script>
 
 
 </body>

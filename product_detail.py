@@ -34,13 +34,13 @@ def search_by_keywords(title, n=2):
     return products
 
 
-def get_similar_items(asin):
-    """Call Amazon API to get similar products but of lower prices."""
-    products = amazon.similarity_lookup(ItemId=asin)
-    #cheaper = [product for product in products if product.price_and_currency[0] < price]
-    if len(products) > 5:
-        products = products[:5]
-    return products
+# def get_similar_items(asin):
+#     """Call Amazon API to get similar products but of lower prices."""
+#     products = amazon.similarity_lookup(ItemId=asin)
+#     cheaper = [product for product in products if product.price_and_currency[0] < price]
+#     if len(products) > 2:
+#         products = products[:2]
+#     return products
 
 
 

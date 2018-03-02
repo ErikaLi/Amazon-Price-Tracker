@@ -10,15 +10,14 @@
           <input type='submit' id='add_item' value='Watch item'>
       </form>
   </div>
-  <!-- sort them in chronological orde -->
+  <h4>Your Current Watch List</h4>
   <ul id='product_list'>
     <div id='new_item'></div>
     {% for uprod in userproducts %}
-      <li id={{uprod.product_id}}>
-          <b>{{uprod.product_name}}</b><br>
-          <!-- style image dimension using css -->
+      <div class='product_box' id={{uprod.product_id}}>
           <img src = "{{ uprod.image }}"><br>
-          Current Price: ${{ uprod.current_price }}<br>
+          <span class='product_name'>{{uprod.product_name}}</span><br>
+          Price: <span class='current_price'>${{ uprod.current_price }}</span><br>
           <!-- always show wanted price in 2 decimal places -->
           Wanted Price: $<span id='wanted_price{{ uprod.product_id }}'>{{ uprod.threshold }}</span><br>
           <a href="{{ uprod.url }}">Buy now!</a></p>
@@ -26,10 +25,9 @@
           <form action='/update' method='POST' id='update_form{{ uprod.product_id }}'>
             <input type='number' id='new_threshold{{ uprod.product_id }}' name='new_threshold' step="1.00" required>
             <input type='submit' id='update_threshold' value='Update wanted price'>
+            <input type='button' id="remove_item{{ uprod.product_id }}" value='x'></span>
           </form> 
-
-            <input type='button' id="remove_item{{ uprod.product_id }}" value='Remove item from wishlist'>
-      </li>
+      </div>
     {% endfor %}
   </ul>
 

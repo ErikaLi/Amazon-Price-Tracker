@@ -195,7 +195,7 @@ def login_process():
     if current_user and validate_password(password, current_user.password):
         session['user_id'] = current_user.user_id
         flash("Successfully logged in!")
-        return redirect("/watchlist")
+        return redirect("/")
 
     else:
         flash("Invalid log in, please try again.")
@@ -242,13 +242,13 @@ def add_item():
 
     # user input of their wanted price
     threshold = float(request.form.get('threshold'))
-    threshold = '{0:.2f}'.format(threshold)
+    threshold = threshold
 
     # item info retrieve from amazon api
     item_info = get_item_info(asin) 
     name = item_info.get('title')
     price = item_info.get('price')
-    price = '{0:.2f}'.format(price)
+    price = price
     image_url = item_info.get("image_url")
     category = item_info.get("category")
 
@@ -334,7 +334,7 @@ def add_item():
             curr_similar = Recommendation.query.filter_by(asin=similar_product.asin).first()
             if not curr_similar and similar_product.asin != asin:
                 item = Recommendation(name=similar_product.title, asin=similar_product.asin,
-                                     price=similar_product.price_and_currency[0], image=similar_product.large_image_url,
+                                     price='{0:.2f}'.format(similar_product.price_and_currency[0]), image=similar_product.large_image_url,
                                      product_id=prod_id, url=similar_product.offer_url)
                 db.session.add(item)
                 db.session.commit()        
