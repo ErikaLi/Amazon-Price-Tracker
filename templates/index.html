@@ -6,15 +6,18 @@
     <h4>Hi, {{ name }}! Here are products that you may be interested in:</h4>
     <ul id='recommendation_list'>
     {% for rec in recommendations %}
-    <br>
-      <div class='product_box' id={{rec.recommendation_id}}>
-          <img src = "{{ rec.image }}"><br>
-          <span class='product_name'>{{rec.name}}</span><br>
-          Current Price: <span class='current_price'>${{ rec.price }}</span><br>
+      <div class='product_box' id='recommendation{{rec.recommendation_id}}'>
+        <img src = "{{ rec.image }}"><br>
+        <span class='product_name'>{{rec.name}}</span><br>
+        Current Price: <span class='current_price'>${{ rec.price }}</span><br>
+        <form action=# method='POST' id='add_rec{{ rec.recommendation_id }}'>
+            Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="1.00" required>
+            <input type='submit' value='Add Item to Watchlist' id=''>
+        </form>
           <a href="{{ rec.url }}">Buy now!</a></p>
       </div>
-  </br>
     {% endfor %}
+    </ul>
 
 {% else %}
     <div class="homepage-hero-module">
@@ -32,7 +35,7 @@
 
     <div id="sign-in-box">
     <div id='sign-in-form'>
-    <h3>Welcome to Amazon Price Tracker 1.0! </h3> 
+    <h3>Welcome to Amazon Price Tracker!</h3> 
     <form class='sign-in' action='/login' method='POST'>
             <label name='sign-in-page'> 
                 <b>Email: </b><br>
@@ -47,6 +50,9 @@
     </div>
 </div>
 {% endif %}
+
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="/static/js/add_rec.js"></script>
 
 {% endblock %}
 
@@ -79,8 +85,3 @@
         
     </script>
 {% endblock %}
-
-<!-- <form action='/add_rec' method='POST' id='add_rec{{ rec.recommendation_id }}'>
-    <input type='number' id='rec_wanted{{ rec.recommendation_id }}' name='rec_wanted' step="1.00" required>
-    <input type='submit' value='Add Item to Watchlist'>
-</form> -->

@@ -18,7 +18,6 @@
           <img src = "{{ uprod.image }}"><br>
           <span class='product_name'>{{uprod.product_name}}</span><br>
           Price: <span class='current_price'>${{ uprod.current_price }}</span><br>
-          <!-- always show wanted price in 2 decimal places -->
           Wanted Price: $<span id='wanted_price{{ uprod.product_id }}'>{{ uprod.threshold }}</span><br>
           <a href="{{ uprod.url }}">Buy now!</a></p>
 
@@ -28,6 +27,7 @@
             <input type='button' id="remove_item{{ uprod.product_id }}" value='x'></span>
           </form> 
       </div>
+      <br>
     {% endfor %}
   </ul>
 

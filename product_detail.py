@@ -29,21 +29,18 @@ def get_item_info(asin):
     # print product.availability
     # print product.large_image_url
 
-def search_by_keywords(title, n=2):
-    products = amazon.search_n(n, Keywords=title, SearchIndex='All')
-    return products
-
-
-# def get_similar_items(asin):
-#     """Call Amazon API to get similar products but of lower prices."""
-#     products = amazon.similarity_lookup(ItemId=asin)
-#     cheaper = [product for product in products if product.price_and_currency[0] < price]
-#     if len(products) > 2:
-#         products = products[:2]
+# def search_by_keywords(title, n=2):
+#     products = amazon.search_n(n, Keywords=title, SearchIndex='All')
 #     return products
 
 
-
+def get_similar_item(asin, price):
+    """Call Amazon API to get similar products but of lower prices."""
+    products = amazon.similarity_lookup(ItemId=asin)
+    cheaper = [product for product in products if float(str(product.price_and_currency[0])) < price]
+    if len(cheaper) > 3:
+        return cheaper[:3]
+    return cheaper
 
 
 def get_asin(string):

@@ -237,13 +237,13 @@ def add_item():
 
     # user input of their wanted price
     threshold = float(request.form.get('threshold'))
-    threshold = threshold
+    threshold = '{0:.2f}'.format(threshold)
 
     # item info retrieve from amazon api
     item_info = get_item_info(asin) 
     name = item_info.get('title')
     price = item_info.get('price')
-    price = price
+    price = '{0:.2f}'.format(price)
     image_url = item_info.get("image_url")
     category = item_info.get("category")
 
@@ -305,7 +305,7 @@ def add_item():
 
 
         # add similar items of this product to the recommendation table
-        similar_products = search_by_keywords(category)
+        similar_products = get_similar_item(asin, price)
         for similar_product in similar_products:
             # check if product already exists in the user's recommended list
             curr_similar = Recommendation.query.filter_by(asin=similar_product.asin, user_id=session.get("user_id")).first()
@@ -316,7 +316,7 @@ def add_item():
                 existence = UserProduct.query.filter_by(user_id=session.get("user_id"), product_id=curr_prod.product_id).first()
             if not curr_similar and not existence:
                 item = Recommendation(name=similar_product.title, asin=similar_product.asin,
-                                     price='{0:.2f}'.format(similar_product.price_and_currency[0]), image=similar_product.large_image_url,
+                                     price='{0:.2f}'.format(float(str(similar_product.price_and_currency[0]))), image=similar_product.large_image_url,
                                      product_id=current_prod.product_id, url=similar_product.offer_url, user_id=session.get("user_id"))
                 db.session.add(item)
                 db.session.commit()
@@ -333,6 +333,109 @@ def add_item():
             "image_url": image_url,
             'threshold': threshold
         })
+
+@app.route('/add_rec', methods=["POST"])
+def add_recommendation():
+    """add the recommended item to the product table and UserProduct table
+     if it does not alreay exist. Remove it from the recommendations table."""
+    rec_id = request.form.get("recommendation_id")
+    recommendation = Recommendation.query.filter_by(recommendation_id=rec_id).first()
+    url = recommendation.url
+    asin = get_asin(url)
+
+    # if cannot find asin from url, tell user to enter a correct url
+    if not asin:
+        return jsonify({'message': "The url you entered is not in the right format, please try again.",
+        # return render_template('add_item.html')
+                "redirect": False,
+                "empty": True
+        })
+
+    # user input of their wanted price
+    threshold = float(request.form.get('threshold'))
+    threshold = '{0:.2f}'.format(threshold)
+
+    # item info retrieve from amazon api
+    item_info = get_item_info(asin) 
+    name = item_info.get('title')
+    price = item_info.get('price')
+    price = '{0:.2f}'.format(price)
+    image_url = item_info.get("image_url")
+    category = item_info.get("category")
+
+    # if price is not available, item is usually free
+    if not price:
+        return jsonify({'message': "The item may be available for free, no need to add to watch list.",
+                "redirect": False,
+                "empty": True
+        })
+
+
+    # if the wanted price is greater than the current price of the product, ask user to enter again
+    if threshold >= price:
+        return jsonify({'message': "Please enter a wanted price lower than the price of the product.",
+                    "redirect": False,
+                    "empty_threshold": True,
+                    "added": False
+        })
+
+    # get the current product from database 
+    current_prod = Product.query.filter(Product.asin == asin).first()
+
+    # content to prepend to the existing page
+
+    # if the product already exists in the product table, check in the
+        # userproduct table if the user has added this item before
+    if not current_prod:
+        # if the item is not in the product table, add it to product table
+        current_prod = Product(name=name, asin=asin, image=image_url, url=url, price=price, category=category)
+        db.session.add(current_prod)
+        db.session.commit()
+
+    timestamp = datetime.datetime.now()
+    current_userproduct = UserProduct(threshold=threshold,
+                                      product_id=current_prod.product_id,
+                                      user_id=session.get("user_id"),
+                                      date_added=timestamp)
+    db.session.add(current_userproduct)
+    db.session.commit()
+
+    # delete it from recommendations table
+    recommendation = Recommendation.query.filter_by(asin=asin, user_id=session.get("user_id")).first()
+    if recommendation:
+        db.session.delete(recommendation)
+        db.session.commit()
+
+
+    # add similar items of this product to the recommendation table
+    similar_products = get_similar_item(asin, price)
+    for similar_product in similar_products:
+        # check if product already exists in the user's recommended list
+        curr_similar = Recommendation.query.filter_by(asin=similar_product.asin, user_id=session.get("user_id")).first()
+        # check if this recommended product is in the user's watchlist
+        existence = None
+        curr_prod = Product.query.filter_by(asin = similar_product.asin).first()
+        if curr_prod:
+            existence = UserProduct.query.filter_by(user_id=session.get("user_id"), product_id=curr_prod.product_id).first()
+        if not curr_similar and not existence:
+            item = Recommendation(name=similar_product.title, asin=similar_product.asin,
+                                 price='{0:.2f}'.format(float(str(similar_product.price_and_currency[0]))), image=similar_product.large_image_url,
+                                 product_id=current_prod.product_id, url=similar_product.offer_url, user_id=session.get("user_id"))
+            db.session.add(item)
+            db.session.commit()
+
+    return jsonify({
+        'message': "Successfully added item to watch list!",
+        'rec_id': rec_id
+        })
+
+
+
+
+
+
+
+
 
 
 @app.route('/watchlist')
@@ -414,33 +517,7 @@ def remove_item():
     result = {'message': 'You successfully deleted your item!',
                 'product_id': prod_id}
     return jsonify(result)
-
-# this requires some user reference for each recommendation so that what the user 
-# is watching will not be display on the homepage.
-
-# @app.route('/add_rec', methods=["POST"])
-# def add_recommendation():
-#     """add the recommended item to the product table and UserProduct table
-#      if it does not alreay exist. Remove it"""
-
-#     prod_id = request.form.get("product_id")
-#     current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
-#     db.session.delete(current_userproduct)
-#     db.session.commit()
-#     remaining_userproduct = UserProduct.query.filter_by(product_id=prod_id).all()
     
-#     if not remaining_userproduct:
-#         # remove recommendations for this product
-#         current_product = Product.query.get(prod_id)
-#         recommended_products = Recommendation.query.filter_by(product_id=prod_id).all()
-#         for rec in recommended_products:
-#             db.session.delete(rec)       
-#         db.session.delete(current_product)
-#         db.session.commit()
-#     result = {'message': 'You successfully deleted your item!',
-#                 'product_id': prod_id}
-#     return jsonify(result)
-
 
 @app.route("/profile", methods=["GET"])
 def display_profile():
