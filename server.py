@@ -32,13 +32,8 @@ def index():
     # recommended items related to these products
     if session.get("user_id"):
         user = User.query.get(session.get("user_id"))
-        recommended = []
-        # get all products using the userproduct table
-        userproduct_list = UserProduct.query.filter_by(user_id=session.get('user_id')).order_by(UserProduct.date_added.desc()).all()
-        for userprod in userproduct_list:
-            prod_id = userprod.product_id
-            prod_rec = Recommendation.query.filter_by(product_id=prod_id).all()
-            recommended.extend(prod_rec)
+        # get all recommended products for this user
+        recommended = Recommendation.query.filter_by(user_id=session.get('user_id')).all()
         # recommended = user.userproducts.products.recommendations
         return render_template("index.html", name=user.fname, recommendations=recommended)
 
@@ -276,48 +271,24 @@ def add_item():
 
     # if the product already exists in the product table, check in the
         # userproduct table if the user has added this item before
-    if current_prod:
-
-        current_userproduct = UserProduct.query.filter_by(product_id=current_prod.product_id, user_id=session.get("user_id")).first()
-        
-        # if the user has already added this item, ask them to update in the wishlist
-        # maybe jump to that item and ask them to update?
-        if current_userproduct:
-            return jsonify({'message': "Item has already been added, you may update your wanted price in watch list.",
-                "redirect": False,
-                "empty": True})
-
-        # if the user has not added this product before, add this to the userproduct table
-        # if it's on the add_item route, should redirect to watchlist, else prepend content in watchlist
-        else:
-            timestamp = datetime.datetime.now()
-            current_userproduct = UserProduct(threshold=threshold,
-                                              product_id=current_prod.product_id,
-                                              user_id=session.get("user_id"),
-                                              date_added=timestamp)
-            db.session.add(current_userproduct)
-            db.session.commit()
-
-            prod_id = current_prod.product_id
-            return jsonify({'message': "Item is successfully added!",
-                "redirect": False,
-                "empty": True,
-                "added": True,
-                "product_id": prod_id,
-                "prod_name": current_prod.name,
-                "price": float(price),
-                "url": url,
-                "image_url": image_url,
-                'threshold': threshold
-            })
-
-    else:
+    if not current_prod:
         # if the item is not in the product table, add it to product table
         current_prod = Product(name=name, asin=asin, image=image_url, url=url, price=price, category=category)
         db.session.add(current_prod)
         db.session.commit()
 
-        # create a userproduct entry and add it to the userproduct table
+    current_userproduct = UserProduct.query.filter_by(product_id=current_prod.product_id, user_id=session.get("user_id")).first()
+        
+    # if the user has already added this item, ask them to update in the wishlist
+    # maybe jump to that item and ask them to update?
+    if current_userproduct:
+        return jsonify({'message': "Item has already been added, you may update your wanted price in watch list.",
+            "redirect": False,
+            "empty": True})
+
+    # if the user has not added this product before, add this to the userproduct table
+    # if it's on the add_item route, should redirect to watchlist, else prepend content in watchlist
+    else:
         timestamp = datetime.datetime.now()
         current_userproduct = UserProduct(threshold=threshold,
                                           product_id=current_prod.product_id,
@@ -326,32 +297,42 @@ def add_item():
         db.session.add(current_userproduct)
         db.session.commit()
 
-        prod_id = current_prod.product_id
+        # if the product already exists in the recommendation table, delete it from recommendations table
+        recommendation = Recommendation.query.filter_by(asin=asin, user_id=session.get("user_id")).first()
+        if recommendation:
+            db.session.delete(recommendation)
+            db.session.commit()
+
+
         # add similar items of this product to the recommendation table
         similar_products = search_by_keywords(category)
         for similar_product in similar_products:
-            # check if product already exists in recommendation table
-            curr_similar = Recommendation.query.filter_by(asin=similar_product.asin).first()
-            if not curr_similar and similar_product.asin != asin:
+            # check if product already exists in the user's recommended list
+            curr_similar = Recommendation.query.filter_by(asin=similar_product.asin, user_id=session.get("user_id")).first()
+            # check if this recommended product is in the user's watchlist
+            existence = None
+            curr_prod = Product.query.filter_by(asin = similar_product.asin).first()
+            if curr_prod:
+                existence = UserProduct.query.filter_by(user_id=session.get("user_id"), product_id=curr_prod.product_id).first()
+            if not curr_similar and not existence:
                 item = Recommendation(name=similar_product.title, asin=similar_product.asin,
                                      price='{0:.2f}'.format(similar_product.price_and_currency[0]), image=similar_product.large_image_url,
-                                     product_id=prod_id, url=similar_product.offer_url)
+                                     product_id=current_prod.product_id, url=similar_product.offer_url, user_id=session.get("user_id"))
                 db.session.add(item)
-                db.session.commit()        
+                db.session.commit()
 
+        prod_id = current_prod.product_id
         return jsonify({'message': "Item is successfully added!",
-                "redirect": False,
-                "empty": True,
-                "added": True,
-                "product_id": prod_id,
-                "prod_name": current_prod.name,
-                "price": float(price),
-                "url": url,
-                "image_url": image_url,
-                'threshold': threshold
-
+            "redirect": False,
+            "empty": True,
+            "added": True,
+            "product_id": prod_id,
+            "prod_name": current_prod.name,
+            "price": float(price),
+            "url": url,
+            "image_url": image_url,
+            'threshold': threshold
         })
-
 
 
 @app.route('/watchlist')
@@ -399,7 +380,7 @@ def update_threshold():
     results = {'message': "Your wanted price has been successfully updated!",
                 'valid_threshold': True,
                 'new_price': new_threshold,
-                'empty': False,
+                'empty': True,
                 'product_id': prod_id
 
                 }
@@ -414,17 +395,20 @@ def remove_item():
         product if userproduct table does not contain this product_id."""
 
     prod_id = request.form.get("product_id")
-    current_userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
-    db.session.delete(current_userproduct)
+    userproduct = UserProduct.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).first()
+    db.session.delete(userproduct)
     db.session.commit()
+
+    # remove recommendations for this user and product combination
+    recommended_products = Recommendation.query.filter_by(product_id=prod_id, user_id=session.get("user_id")).all()
+    for rec in recommended_products:
+        db.session.delete(rec)
+        db.session.commit()
+
+    # if no one else is watching this product, remove this product from the products table
     remaining_userproduct = UserProduct.query.filter_by(product_id=prod_id).all()
-    
     if not remaining_userproduct:
-        # remove recommendations for this product
-        current_product = Product.query.get(prod_id)
-        recommended_products = Recommendation.query.filter_by(product_id=prod_id).all()
-        for rec in recommended_products:
-            db.session.delete(rec)       
+        current_product = Product.query.get(prod_id)       
         db.session.delete(current_product)
         db.session.commit()
     result = {'message': 'You successfully deleted your item!',

@@ -19,7 +19,7 @@ class User(db.Model):
     fname = db.Column(db.String(64), nullable=False)
     lname = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False)
-    password = db.Column(db.String(30), nullable=False)
+    password = db.Column(db.String(256), nullable=False)
     phone = db.Column(db.String(16), nullable=False)
 
     def __repr__(self):
@@ -60,7 +60,7 @@ class UserProduct(db.Model):
 
     __tablename__ = 'userproducts'
 
-    userproducts_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    userproduct_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     #original_price = db.Column(db.Float, nullable=False)
     threshold = db.Column(db.Float, nullable=False)
     date_added = db.Column(db.DateTime, nullable=True)
@@ -90,6 +90,9 @@ class Recommendation(db.Model):
     price = db.Column(db.Float, nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
     product = db.relationship('Product', backref='recommendations')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    user = db.relationship('User', backref='recommendations')
+
 
 
 # only use to implement visualizations for price history
