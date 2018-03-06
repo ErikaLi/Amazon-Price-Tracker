@@ -5,11 +5,9 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask import (Flask, render_template, redirect, request, flash,
                    session, jsonify)
 
-from model import User, Product, UserProduct, Recommendation, db, connect_to_db
-
-from product_detail import *
-
 import datetime
+
+from model import *
 
 from helper import *
 
@@ -237,13 +235,12 @@ def add_item():
 
     # user input of their wanted price
     threshold = float(request.form.get('threshold'))
-    threshold = '{0:.2f}'.format(threshold)
 
     # item info retrieve from amazon api
-    item_info = get_item_info(asin) 
+    item_info = get_item_info(asin)
     name = item_info.get('title')
-    price = item_info.get('price')
-    price = '{0:.2f}'.format(price)
+    price = '{0:.2f}'.format(item_info.get('price'))
+    price = float(price)
     image_url = item_info.get("image_url")
     category = item_info.get("category")
 
@@ -257,7 +254,7 @@ def add_item():
 
     # if the wanted price is greater than the current price of the product, ask user to enter again
     if threshold >= price:
-        return jsonify({'message': "Please enter a wanted price lower than the price of the product.",
+        return jsonify({'message': "The current price of the product is {}, please enter a lower wanted price".format(price),
                     "redirect": False,
                     "empty_threshold": True,
                     "added": False
@@ -316,7 +313,7 @@ def add_item():
                 existence = UserProduct.query.filter_by(user_id=session.get("user_id"), product_id=curr_prod.product_id).first()
             if not curr_similar and not existence:
                 item = Recommendation(name=similar_product.title, asin=similar_product.asin,
-                                     price='{0:.2f}'.format(float(str(similar_product.price_and_currency[0]))), image=similar_product.large_image_url,
+                                     price=float('{0:.2f}'.format(similar_product.price_and_currency[0])), image=similar_product.large_image_url,
                                      product_id=current_prod.product_id, url=similar_product.offer_url, user_id=session.get("user_id"))
                 db.session.add(item)
                 db.session.commit()
@@ -328,7 +325,7 @@ def add_item():
             "added": True,
             "product_id": prod_id,
             "prod_name": current_prod.name,
-            "price": float(price),
+            "price": price,
             "url": url,
             "image_url": image_url,
             'threshold': threshold
@@ -353,13 +350,12 @@ def add_recommendation():
 
     # user input of their wanted price
     threshold = float(request.form.get('threshold'))
-    threshold = '{0:.2f}'.format(threshold)
 
     # item info retrieve from amazon api
     item_info = get_item_info(asin) 
     name = item_info.get('title')
-    price = item_info.get('price')
-    price = '{0:.2f}'.format(price)
+    price = '{0:.2f}'.format(item_info.get('price'))
+    price = float(price)
     image_url = item_info.get("image_url")
     category = item_info.get("category")
 
@@ -373,7 +369,7 @@ def add_recommendation():
 
     # if the wanted price is greater than the current price of the product, ask user to enter again
     if threshold >= price:
-        return jsonify({'message': "Please enter a wanted price lower than the price of the product.",
+        return jsonify({'message': "The current price of the product is {}, please enter a lower wanted price".format(price),
                     "redirect": False,
                     "empty_threshold": True,
                     "added": False
@@ -419,7 +415,7 @@ def add_recommendation():
             existence = UserProduct.query.filter_by(user_id=session.get("user_id"), product_id=curr_prod.product_id).first()
         if not curr_similar and not existence:
             item = Recommendation(name=similar_product.title, asin=similar_product.asin,
-                                 price='{0:.2f}'.format(float(str(similar_product.price_and_currency[0]))), image=similar_product.large_image_url,
+                                 price=float('{0:.2f}'.format(similar_product.price_and_currency[0])), image=similar_product.large_image_url,
                                  product_id=current_prod.product_id, url=similar_product.offer_url, user_id=session.get("user_id"))
             db.session.add(item)
             db.session.commit()
@@ -465,11 +461,11 @@ def display_watchlist():
 def update_threshold():
     """Update user's threshold for a certain item in the watchlist."""
 
-    new_threshold = float(request.form.get('new_threshold'))
+    new_threshold = float((request.form.get('new_threshold')))
     prod_id = request.form.get("product_id")
-
-    if new_threshold >= Product.query.get(prod_id).price:
-        results = {'message': "Please enter a wanted price lower than the product price.",
+    price = Product.query.get(prod_id).price
+    if new_threshold >= price:
+        results = {'message': "The current price of the product is {}, please enter a lower wanted price".format(price),
                     'valid_threshold': False,
                     'empty': True,
                     'product_id': prod_id

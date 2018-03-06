@@ -6,21 +6,21 @@
     <h4>Hi, {{ name }}! Here are products that you may be interested in:</h4>
     <ul id='recommendation_list'>
     {% for rec in recommendations %}
-      <div class='product_box' id='recommendation{{rec.recommendation_id}}'>
-        <img src = "{{ rec.image }}"><br>
-        <span class='product_name'>{{rec.name}}</span><br>
-        Current Price: <span class='current_price'>${{ rec.price }}</span><br>
+      <div class='rec-box' id='recommendation{{rec.recommendation_id}}' >
+        <img class='rec-img' src = "{{ rec.image }}"><br>
+        <span class='product-name'>{{rec.name}}</span><br>
+        Current Price: <span class='current-price'>${{ rec.price }}</span><br>
         <form action=# method='POST' id='add_rec{{ rec.recommendation_id }}'>
-            Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="1.00" required>
+            Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="1.00" min="0" required>
             <input type='submit' value='Add Item to Watchlist' id=''>
         </form>
           <a href="{{ rec.url }}">Buy now!</a></p>
-      </div>
+        </div>
     {% endfor %}
     </ul>
 
 {% else %}
-    <div class="homepage-hero-module">
+    <!-- <div class="homepage-hero-module">
     <div class="video-container">
         <div class="filter"></div>
         <video autoplay loop class="fillWidth">
@@ -31,7 +31,10 @@
             <img src="static/Workaholic.jpg" alt="">
         </div>
     </div>
-    </div>
+    </div> -->
+
+    <div class='bg'>
+
 
     <div id="sign-in-box">
     <div id='sign-in-form'>
@@ -48,6 +51,7 @@
         </div>
         </form>
     </div>
+</div>
 </div>
 {% endif %}
 
@@ -71,7 +75,7 @@
             $('#sign-in-form').css({
                 'position' : 'absolute',
                 'left' : '50%',
-                'top' : '50%',
+                'top' : '40%',
                 'padding' : '1%',
                 'margin-left' : function() {return -$(this).outerWidth()/2},
                 'margin-top' : function() {return -$(this).outerHeight()/2},

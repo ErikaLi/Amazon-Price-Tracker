@@ -69,21 +69,26 @@ function processAdd(result) {
 
     if (result.empty) {
         $('#threshold_add').val('');
+        $('#url_add').val('');
+    }
+
+    if (result.empty_threshold) {
+        $('#threshold_add').val('');
     }
 
     if (result.added) {
 
-        let html_content = `<div class="product_box" id=${result.product_id}>
+        let html_content = `<div class="product-box" id=${result.product_id}>
                           <img src = '${result.image_url}'><br>
-                          <span class='product_name'><b>${result.prod_name}</span></b><br>
-                          Current Price: <span class='current_price'> $${result.price}</span><br>
+                          <span class='product-name'><b>${result.prod_name}</span></b><br>
+                          Current Price: <span class='current-price'> $${result.price}</span><br>
                           Wanted Price: $<span id=wanted_price${result.product_id}>${result.threshold}</span><br>
                           <a href='${result.url}'>Buy now!</a></p>
 
                           <form action='/update' method='POST' id='update_form${result.product_id}'>
-                            <input type='number' id='new_threshold${result.product_id}' name='new_threshold' step="1.00">
+                            <input type='number' id='new_threshold${result.product_id}' name='new_threshold' step="1.00" min="0">
                             <input type='submit' id='update_threshold' value='Update wanted price'>
-                            <input type='button' id="remove_item${result.product_id}" value='x'>
+                            <input type='button' id="remove_item${result.product_id}" value='delete'>
                           </form> 
 
                             

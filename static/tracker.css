@@ -1,8 +1,78 @@
 body, html{
-     height: 100%;
+    height: 100%;
     background-repeat: no-repeat;
+    /*background-color: #d3d3d3;*/
     font-family: 'Oxygen', sans-serif;
 }
+
+.main{
+    margin-top: 70px;
+}
+
+/*h1.title { 
+    font-size: 50px;
+    font-family: 'Passion One', cursive; 
+    font-weight: bold; 
+}*/
+
+/*hr{
+    width: 10%;
+    color: #fff;
+}
+*/
+.form-group{
+    margin-bottom: 15px;
+}
+
+label{
+    margin-bottom: 15px;
+}
+
+
+/*input,
+input::-webkit-input-placeholder {
+    font-size: 11px;
+    padding-top: 3px;
+}*/
+
+.main-login{
+    /*background-color: #fff;*/
+    /* shadows and rounded borders */
+    /*-moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3)*/
+
+}
+
+textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus {   
+    border-color: rgba(229, 103, 23, 0.8);
+    box-shadow: 0 1px 1px rgba(229, 103, 23, 0.075) inset, 0 0 8px rgba(229, 103, 23, 0.6);
+    outline: 0 none;
+}
+
+.main-center{
+    margin-top: 30px;
+    margin: 0 auto;
+    max-width: 330px;
+    padding: 40px 40px;
+
+}
+
+.login-button{
+    margin-top: 5px;
+    background-color: gray !important;
+    border: none;
+    color: black;
+}
+
+.login-register{
+    font-size: 11px;
+    text-align: center;
+}
+
 
 
 .sticky-top {
@@ -12,44 +82,74 @@ body, html{
 }
 
 #foot-logo {
-  position: fixed;
-  bottom: 0,
+  vertical-align: bottom;
+  bottom: 20,
   color: black;
-  left: 45%;
+  text-align: center;
+  
 }
 
-.product_box{
-    width: 50%;
-    left: 20%;
+.product-box{
+    width: 33%;
     margin-left: auto;
     margin-right: auto;
 }
 
-.current_price{
+.rec-box{
+    width: 33%;
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+    /*vertical-align: bottom;*/
+    float: none;
+    
+}
+
+
+
+.current-price{
     color: FireBrick;
     font-size: 13pt;
 }
 
-.product_name {
+.product-name {
     color:grey;
     font-size: 11pt;
     font-weight: bold;
+    margin-left: auto;
+    margin-right: auto;
+}
 }
 
 
+
 img {
-    display: block;
-    max-height:450px;
+    max-height:400px;
     width: auto;
     height: auto;
     margin-left: auto;
     margin-right: auto;
-
 }
+
+.rec-img {
+    max-height:400px;
+}
+
 
 h4 {
     font-size: 15;
-    color: Brown;
+    color: chocolate;
     font-weight: bold;
+}
+
+.center-text {
     text-align: center;
+}
+
+.bg {
+  background-image: url('bg.jpeg');
+  background-size:contain;
+  background-repeat:no-repeat;
+  height: 1281px;
+
 }
