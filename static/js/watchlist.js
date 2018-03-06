@@ -86,7 +86,7 @@ function processAdd(result) {
                           <a href='${result.url}'>Buy now!</a></p>
 
                           <form action='/update' method='POST' id='update_form${result.product_id}'>
-                            <input type='number' id='new_threshold${result.product_id}' name='new_threshold' step="1.00" min="0">
+                            <input type='number' id='new_threshold${result.product_id}' name='new_threshold' step="any" min="0">
                             <input type='submit' id='update_threshold' value='Update wanted price'>
                             <input type='button' id="remove_item${result.product_id}" value='delete'>
                           </form> 

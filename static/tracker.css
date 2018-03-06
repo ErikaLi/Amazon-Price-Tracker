@@ -64,7 +64,7 @@ textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus {
 .login-button{
     margin-top: 5px;
     background-color: gray !important;
-    border: none;
+    border: none !important;
     color: black;
 }
 
@@ -132,7 +132,7 @@ img {
 }
 
 .rec-img {
-    max-height:400px;
+    max-height:300px;
 }
 
 

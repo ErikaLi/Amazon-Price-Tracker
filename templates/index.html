@@ -11,7 +11,7 @@
         <span class='product-name'>{{rec.name}}</span><br>
         Current Price: <span class='current-price'>${{ rec.price }}</span><br>
         <form action=# method='POST' id='add_rec{{ rec.recommendation_id }}'>
-            Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="1.00" min="0" required>
+            Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="any" min="0" required>
             <input type='submit' value='Add Item to Watchlist' id=''>
         </form>
           <a href="{{ rec.url }}">Buy now!</a></p>

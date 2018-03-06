@@ -6,7 +6,7 @@
     <b>Add another item</b>
       <form action='/add_item' method='POST' id='add_item_form'>
           Amazon URL: <input type='text' id='url_add' name='url_add' required><br>
-          Wanted Price: <input type='number' id='threshold_add' name='threshold_add' step="1" min="0" required><br>
+          Wanted Price: <input type='number' id='threshold_add' name='threshold_add' step="any" min="0" required><br>
           <input type='submit' id='add_item' value='Watch item'>
       </form>
   </div>
@@ -22,7 +22,7 @@
           <a href="{{ uprod.url }}">Buy now!</a></p>
 
           <form action='/update' method='POST' id='update_form{{ uprod.product_id }}'>
-            <input type='number' id='new_threshold{{ uprod.product_id }}' name='new_threshold' step="1.00" min="0" required>
+            <input type='number' id='new_threshold{{ uprod.product_id }}' name='new_threshold' step="any" min="0" required>
             <input type='submit' id='update_threshold' value='Update wanted price'>
             <input type='button' id="remove_item{{ uprod.product_id }}" value='Delete'></span>
           </form> 
