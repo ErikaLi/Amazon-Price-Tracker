@@ -239,8 +239,7 @@ def add_item():
     # item info retrieve from amazon api
     item_info = get_item_info(asin)
     name = item_info.get('title')
-    price = '{0:.2f}'.format(item_info.get('price'))
-    price = float(price)
+    price = float(str(item_info.get('price')))
     image_url = item_info.get("image_url")
     category = item_info.get("category")
 
@@ -309,11 +308,12 @@ def add_item():
             # check if this recommended product is in the user's watchlist
             existence = None
             curr_prod = Product.query.filter_by(asin = similar_product.asin).first()
+            price = similar_product.price_and_currency[0]
             if curr_prod:
                 existence = UserProduct.query.filter_by(user_id=session.get("user_id"), product_id=curr_prod.product_id).first()
-            if not curr_similar and not existence:
+            if not curr_similar and not existence and price:
                 item = Recommendation(name=similar_product.title, asin=similar_product.asin,
-                                     price=float('{0:.2f}'.format(similar_product.price_and_currency[0])), image=similar_product.large_image_url,
+                                     price=float(price), image=similar_product.large_image_url,
                                      product_id=current_prod.product_id, url=similar_product.offer_url, user_id=session.get("user_id"))
                 db.session.add(item)
                 db.session.commit()
@@ -325,7 +325,7 @@ def add_item():
             "added": True,
             "product_id": prod_id,
             "prod_name": current_prod.name,
-            "price": price,
+            "price": float(price),
             "url": url,
             "image_url": image_url,
             'threshold': threshold
@@ -354,8 +354,7 @@ def add_recommendation():
     # item info retrieve from amazon api
     item_info = get_item_info(asin) 
     name = item_info.get('title')
-    price = '{0:.2f}'.format(item_info.get('price'))
-    price = float(price)
+    price = float(item_info.get('price'))
     image_url = item_info.get("image_url")
     category = item_info.get("category")
 
@@ -410,12 +409,13 @@ def add_recommendation():
         curr_similar = Recommendation.query.filter_by(asin=similar_product.asin, user_id=session.get("user_id")).first()
         # check if this recommended product is in the user's watchlist
         existence = None
+        price = similar_product.price_and_currency[0]
         curr_prod = Product.query.filter_by(asin = similar_product.asin).first()
         if curr_prod:
             existence = UserProduct.query.filter_by(user_id=session.get("user_id"), product_id=curr_prod.product_id).first()
-        if not curr_similar and not existence:
+        if not curr_similar and not existence and price:
             item = Recommendation(name=similar_product.title, asin=similar_product.asin,
-                                 price=float('{0:.2f}'.format(similar_product.price_and_currency[0])), image=similar_product.large_image_url,
+                                 price=float(price), image=similar_product.large_image_url,
                                  product_id=current_prod.product_id, url=similar_product.offer_url, user_id=session.get("user_id"))
             db.session.add(item)
             db.session.commit()

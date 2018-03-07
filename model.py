@@ -139,6 +139,7 @@ def example_data():
         price=1)
 
     yingying_watch = UserProduct(threshold=1000, product_id=1, user_id=1)
+    # yingying_sunglasses = UserProduct(threshold=50, product_id=2, user_id=1)
     henry_watch = UserProduct(threshold=30, product_id=1, user_id=2)
     henry_sunglasses = UserProduct(threshold=50, product_id=2, user_id=2)
 

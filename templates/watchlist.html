@@ -3,33 +3,38 @@
 
 
   <div class='sticky-top'>
-    <b>Add another item</b>
+    <!-- <span class="glyphicon glyphicon-search" aria-hidden="true"></span><b>Add another item</b> -->
       <form action='/add_item' method='POST' id='add_item_form'>
-          Amazon URL: <input type='text' id='url_add' name='url_add' required><br>
-          Wanted Price: <input type='number' id='threshold_add' name='threshold_add' step="any" min="0" required><br>
-          <input type='submit' id='add_item' value='Watch item'>
+          Amazon URL<span class="glyphicon glyphicon-link" aria-hidden="true"></span> <input type='text' id='url_add' name='url_add' required><br>
+          Wanted Price<span class="glyphicon glyphicon-usd" aria-hidden="true"></span> <input type='number' id='threshold_add' name='threshold_add' step="any" min="0" required><br>
+          <button type='submit' class="btn btn-primary btn-sm" id='add_item' value='Add'><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>Add to Watchlist</button>
       </form>
   </div>
-  <h4 class='center-text'>Your Current Watch List</h4>
-  <ul id='product_list'>
-    <div id='new_item'></div>
-    {% for uprod in userproducts %}
-      <div class='product-box align-bottom"' id={{uprod.product_id}}>
-          <img class='product-img' src = "{{ uprod.image }}"><br>
-          <span class='product-name'>{{uprod.product_name}}</span><br>
-          Price: <span class='current-price'>${{ uprod.current_price }}</span><br>
-          Wanted Price: $<span id='wanted_price{{ uprod.product_id }}'>{{ uprod.threshold }}</span><br>
-          <a href="{{ uprod.url }}">Buy now!</a></p>
 
-          <form action='/update' method='POST' id='update_form{{ uprod.product_id }}'>
-            <input type='number' id='new_threshold{{ uprod.product_id }}' name='new_threshold' step="any" min="0" required>
-            <input type='submit' id='update_threshold' value='Update wanted price'>
-            <input type='button' id="remove_item{{ uprod.product_id }}" value='Delete'></span>
-          </form> 
-      </div>
-      <br>
-    {% endfor %}
-  </ul>
+  {% if userproducts %}
+    <h3 class='center-text'>Your Current Watch List</h3>
+    <ul id='product_list'>
+      <div id='new_item'></div>
+      {% for uprod in userproducts %}
+        <div class='product-box align-bottom"' id={{uprod.product_id}}>
+            <img class='product-img' src = "{{ uprod.image }}"><br>
+            <span class='product-name'>{{uprod.product_name}}</span><br>
+            Price: <span class='current-price'>${{ uprod.current_price }}</span><br>
+            Wanted Price: $<span id='wanted_price{{ uprod.product_id }}'>{{ uprod.threshold }}</span><br>
+            <a href="{{ uprod.url }}">Buy now!</a></p>
+
+            <form action='/update' method='POST' id='update_form{{ uprod.product_id }}'>
+              <input type='number' id='new_threshold{{ uprod.product_id }}' name='new_threshold' step="any" min="0" required>
+              <span><input type='submit' id='update_threshold' class="btn btn-default btn-sm" value='Update wanted price'>
+              <button type='button' class="btn btn-default btn-sm" id="remove_item{{ uprod.product_id }}" value='Delete'><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+            </form> 
+        </div>
+        <br>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <h4 class='center-text'>Your watch list is currently empty, start adding your first item!</h4>
+  {% endif %}
 
 
   <script src="http://code.jquery.com/jquery.js"></script>

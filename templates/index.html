@@ -3,35 +3,28 @@
 
 {% if session.get('user_id') %}
     <!-- personalize welcome message -->
-    <h4>Hi, {{ name }}! Here are products that you may be interested in:</h4>
-    <ul id='recommendation_list'>
-    {% for rec in recommendations %}
-      <div class='rec-box' id='recommendation{{rec.recommendation_id}}' >
-        <img class='rec-img' src = "{{ rec.image }}"><br>
-        <span class='product-name'>{{rec.name}}</span><br>
-        Current Price: <span class='current-price'>${{ rec.price }}</span><br>
-        <form action=# method='POST' id='add_rec{{ rec.recommendation_id }}'>
-            Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="any" min="0" required>
-            <input type='submit' value='Add Item to Watchlist' id=''>
-        </form>
-          <a href="{{ rec.url }}">Buy now!</a></p>
-        </div>
-    {% endfor %}
-    </ul>
+    {% if recommendations %}
+
+        <h3>Hi, {{ name }}! Here are products that you may be interested in</h3>
+            <ul id='recommendation_list'>
+            {% for rec in recommendations %}
+              <div class='rec-box' id='recommendation{{rec.recommendation_id}}' >
+                <img class='rec-img' src = "{{ rec.image }}"><br>
+                <span class='product-name'>{{rec.name}}</span><br>
+                Current Price: <span class='current-price'>${{ rec.price }}</span><br>
+                <form action=# method='POST' id='add_rec{{ rec.recommendation_id }}'>
+                    Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="any" min="0" required>
+                    <button type='submit' class="btn btn-primary btn-sm" id='add_item' value='Add'><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>Add to Watchlist</button>
+                </form>
+                  <a href="{{ rec.url }}">Buy now!</a></p>
+                </div>
+            {% endfor %}
+            </ul>
+    {% else %}
+        <h4>Hi, {{ name }}, your current recommendation list is empty. Add more items to your watch list to receive recommendations.</h4>
+    {% endif %}
 
 {% else %}
-    <!-- <div class="homepage-hero-module">
-    <div class="video-container">
-        <div class="filter"></div>
-        <video autoplay loop class="fillWidth">
-            <source src="static/Workaholic.mp4" type="video/mp4" />Your browser does not support the video tag. I suggest you upgrade your browser.
-            <source src="static/Workaholic.webm" type="video/webm" />Your browser does not support the video tag. I suggest you upgrade your browser.
-        </video>
-        <div class="poster hidden">
-            <img src="static/Workaholic.jpg" alt="">
-        </div>
-    </div>
-    </div> -->
 
     <div class='bg'>
 
@@ -62,15 +55,6 @@
 
 {% block JQ %}
     <script>
-    $(function() {
-            $('.homepage-hero-module').css({
-                'position' : 'absolute',
-                'top' : '-20px',
-                'left' : '-20px',
-                'width' : '100%',
-                'z-index' : -1
-            });
-        });
         $(function() {
             $('#sign-in-form').css({
                 'position' : 'absolute',

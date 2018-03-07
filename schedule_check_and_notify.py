@@ -30,7 +30,7 @@ def notify(user_id, product_id_lst):
     for i in range(len(product_id_lst)):
         prod_id = product_id_lst[i]
         prod = Product.query.get(prod_id)
-        product_info_string += "\n Current Price: ${}\n {}".format(prod.price, prod.url)
+        product_info_string += "\n{}".format(prod.url)
 
     message = "Hi {}, one or more items that you are watching are on sale. Click to buy! {}".format(curr_user.fname, product_info_string)
     send_text(phone, message)

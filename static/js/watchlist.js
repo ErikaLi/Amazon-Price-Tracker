@@ -87,8 +87,10 @@ function processAdd(result) {
 
                           <form action='/update' method='POST' id='update_form${result.product_id}'>
                             <input type='number' id='new_threshold${result.product_id}' name='new_threshold' step="any" min="0">
-                            <input type='submit' id='update_threshold' value='Update wanted price'>
-                            <input type='button' id="remove_item${result.product_id}" value='delete'>
+                            <input type='submit' class="btn btn-default btn-sm" id='update_threshold' value='Update wanted price'>
+                            <button type='button' class="btn btn-default btn-sm" id="remove_item${result.product_id}" value='Delete'>
+                              <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
                           </form> 
 
                             
@@ -131,7 +133,7 @@ function processAdd(result) {
 $('ul').on("submit", "form[id^=update_form]", getUpdateInfo);
 
 // parent, descendant contained in the parent
-$('ul').on("click", "input[id^=remove_item]", deleteItem);
+$('ul').on("click", "button[id^=remove_item]", deleteItem);
 
 
 $("#add_item_form").on("submit", addItem);
