@@ -3,7 +3,6 @@
 
 {% if session.get('user_id') %}
     <!-- personalize welcome message -->
-    {% if recommendations %}
 
         <h3>Hi, {{ name }}! Here are products that you may be interested in</h3>
             <ul id='recommendation_list'>
@@ -20,9 +19,6 @@
                 </div>
             {% endfor %}
             </ul>
-    {% else %}
-        <h4>Hi, {{ name }}, your current recommendation list is empty. Add more items to your watch list to receive recommendations.</h4>
-    {% endif %}
 
 {% else %}
 

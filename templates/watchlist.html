@@ -11,7 +11,6 @@
       </form>
   </div>
 
-  {% if userproducts %}
     <h3 class='center-text'>Your Current Watch List</h3>
     <ul id='product_list'>
       <div id='new_item'></div>
@@ -32,9 +31,7 @@
         <br>
       {% endfor %}
     </ul>
-  {% else %}
-    <h4 class='center-text'>Your watch list is currently empty, start adding your first item!</h4>
-  {% endif %}
+
 
 
   <script src="http://code.jquery.com/jquery.js"></script>
