@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>Hi, {{ name }}! Here are products that you may be interested in</h3>
+            <ul id='recommendation_list'>
+            {% for rec in recommendations %}
+              <div class='rec-box' id='recommendation{{rec.recommendation_id}}' >
+                <img class='rec-img' src = "{{ rec.image }}"><br>
+                <span class='product-name'>{{rec.name}}</span><br>
+                Current Price: <span class='current-price'>${{ rec.price }}</span><br>
+                <form action=# method='POST' id='add_rec{{ rec.recommendation_id }}'>
+                    Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="any" min="0" required>
+                    <button type='submit' class="btn btn-primary btn-sm" id='add_item' value='Add'><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>Add to Watchlist</button>
+                </form>
+                  <a href="{{ rec.url }}">Buy now!</a></p>
+                </div>
+            {% endfor %}
+            </ul>
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="/static/js/add_rec.js"></script>
+   
+{% endblock %}

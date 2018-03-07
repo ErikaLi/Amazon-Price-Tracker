@@ -1,48 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
 
-{% if session.get('user_id') %}
-    <!-- personalize welcome message -->
-
-        <h3>Hi, {{ name }}! Here are products that you may be interested in</h3>
-            <ul id='recommendation_list'>
-            {% for rec in recommendations %}
-              <div class='rec-box' id='recommendation{{rec.recommendation_id}}' >
-                <img class='rec-img' src = "{{ rec.image }}"><br>
-                <span class='product-name'>{{rec.name}}</span><br>
-                Current Price: <span class='current-price'>${{ rec.price }}</span><br>
-                <form action=# method='POST' id='add_rec{{ rec.recommendation_id }}'>
-                    Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="any" min="0" required>
-                    <button type='submit' class="btn btn-primary btn-sm" id='add_item' value='Add'><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>Add to Watchlist</button>
-                </form>
-                  <a href="{{ rec.url }}">Buy now!</a></p>
-                </div>
-            {% endfor %}
-            </ul>
-
-{% else %}
-
-    <div class='bg'>
+<div class='bg'>
 
 
-    <div id="sign-in-box">
-    <div id='sign-in-form'>
-    <h3>Welcome to Amazon Price Tracker!</h3> 
-    <form class='sign-in' action='/login' method='POST'>
-            <label name='sign-in-page'> 
-                <b>Email: </b><br>
-                <input type="email" id="email" name="email" placeholder='email@domain.com' maxlength='256' required><br>
-                <b>Password: </b><br>
-                <input type="password" id="pw" name="pw" placeholder='cAsE SeNsItiVe' required>
-            </label><br><br>
-        <div id='submit-buttons'>
-                <input type="submit" value="Sign-in"><button type='button' id="register-button">Register!</button>
-        </div>
-        </form>
-    </div>
+<div id="sign-in-box">
+<div id='sign-in-form'>
+<h3>Welcome to Amazon Price Tracker!</h3> 
+<form class='sign-in' action='/login' method='POST'>
+    <label name='sign-in-page'> 
+        <b>Email: </b><br>
+        <input type="email" id="email" name="email" placeholder='email@domain.com' maxlength='256' required><br>
+        <b>Password: </b><br>
+        <input type="password" id="pw" name="pw" placeholder='cAsE SeNsItiVe' required>
+    </label><br><br>
+<div id='submit-buttons'>
+        <input type="submit" value="Sign-in"><button type='button' id="register-button">Register!</button>
+</div>
+</form>
 </div>
 </div>
-{% endif %}
+</div>
 
 <script src="http://code.jquery.com/jquery.js"></script>
 <script src="/static/js/add_rec.js"></script>

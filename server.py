@@ -23,17 +23,53 @@ app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
 
 
+@app.route('/watchlist')
+def display_watchlist():
+    """Display watchlist of current user."""
+    # get all products that this user follows
+    # order by date_added
+
+    if not session.get('user_id'):
+        return redirect("/")
+
+    userproduct_list = UserProduct.query.filter_by(user_id=session.get('user_id')).order_by(UserProduct.date_added.desc()).all()
+    # use relationships to connect to products table and get product name and url
+    # maybe use userproduct.product, figure out why it does not work
+    for userproduct in userproduct_list:
+        userproduct.product_name = userproduct.product.name
+        userproduct.image = userproduct.product.image
+        userproduct.url = userproduct.product.url
+        userproduct.current_price = userproduct.product.price
+    # sort the watchlist by added_date
+
+
+    return render_template("watchlist.html", userproducts=userproduct_list)
+
+
+@app.route("/recommendation")
+def display_recommendation():
+    """Display recommendations for current user."""
+    if session.get("user_id"):
+        redirect("/watchlist")
+    user = User.query.get(session.get("user_id"))
+    # get all recommended products for this user
+    recommended = Recommendation.query.filter_by(user_id=session.get('user_id')).all()
+    # recommended = user.userproducts.products.recommendations
+    return render_template("recommendation.html", name=user.fname, recommendations=recommended)
+
+
 @app.route('/')
 def index():
     """Homepage."""
     # if this user exists, get all products that this user is watching, and find
     # recommended items related to these products
     if session.get("user_id"):
-        user = User.query.get(session.get("user_id"))
-        # get all recommended products for this user
-        recommended = Recommendation.query.filter_by(user_id=session.get('user_id')).all()
-        # recommended = user.userproducts.products.recommendations
-        return render_template("index.html", name=user.fname, recommendations=recommended)
+        redirect("/watchlist")
+        # user = User.query.get(session.get("user_id"))
+        # # get all recommended products for this user
+        # recommended = Recommendation.query.filter_by(user_id=session.get('user_id')).all()
+        # # recommended = user.userproducts.products.recommendations
+        # return render_template("index.html", name=user.fname, recommendations=recommended)
 
     return render_template("index.html")
 
@@ -188,7 +224,7 @@ def login_process():
     if current_user and validate_password(password, current_user.password):
         session['user_id'] = current_user.user_id
         flash("Successfully logged in!")
-        return redirect("/")
+        return redirect("/watchlist")
 
     else:
         flash("Invalid log in, please try again.")
@@ -428,35 +464,6 @@ def add_recommendation():
 
 
 
-
-
-
-
-
-
-@app.route('/watchlist')
-def display_watchlist():
-    """Display watchlist of current user."""
-    # get all products that this user follows
-    # order by date_added
-
-    if not session.get('user_id'):
-        return redirect("/")
-
-    userproduct_list = UserProduct.query.filter_by(user_id=session.get('user_id')).order_by(UserProduct.date_added.desc()).all()
-    # use relationships to connect to products table and get product name and url
-    # maybe use userproduct.product, figure out why it does not work
-    for userproduct in userproduct_list:
-        userproduct.product_name = userproduct.product.name
-        userproduct.image = userproduct.product.image
-        userproduct.url = userproduct.product.url
-        userproduct.current_price = userproduct.product.price
-    # sort the watchlist by added_date
-
-
-    return render_template("watchlist.html", userproducts=userproduct_list)
-
-
 @app.route('/update', methods=["POST"])
 def update_threshold():
     """Update user's threshold for a certain item in the watchlist."""
@@ -529,7 +536,7 @@ def display_profile():
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
-    app.debug = True
+    # app.debug = True
     # make sure templates, etc. are not cached in debug mode
     app.jinja_env.auto_reload = app.debug
 
@@ -537,6 +544,6 @@ if __name__ == "__main__":
     db.create_all()
 
     # Use the DebugToolbar
-    DebugToolbarExtension(app)
+    # DebugToolbarExtension(app)
 
     app.run(port=5000, host='0.0.0.0')
