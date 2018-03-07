@@ -1,22 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h3>Hi, {{ name }}! Here are products that you may be interested in</h3>
-            <ul id='recommendation_list'>
-            {% for rec in recommendations %}
-              <div class='rec-box' id='recommendation{{rec.recommendation_id}}' >
-                <img class='rec-img' src = "{{ rec.image }}"><br>
-                <span class='product-name'>{{rec.name}}</span><br>
-                Current Price: <span class='current-price'>${{ rec.price }}</span><br>
-                <form action=# method='POST' id='add_rec{{ rec.recommendation_id }}'>
-                    Wanted Price: <input type='number' id='rec_wanted{{ rec.recommendation_id }}' step="any" min="0" required>
-                    <button type='submit' class="btn btn-primary btn-sm" id='add_item' value='Add'><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>Add to Watchlist</button>
-                </form>
-                  <a href="{{ rec.url }}">Buy now!</a></p>
-                </div>
-            {% endfor %}
-            </ul>
+<h4 class='center-text'>Hi, {{ name }}! Here are products that you may be interested in</h4>
+    <ul id='recommendation_list'>
+        {% for rec in recommendations %}
+          <div class='rec-box' id='recommendation{{rec.recommendation_id}}' >
+            <img class='rec-img small-margin-bottom' src = "{{ rec.image }}"><br>
+            <a href="{{ rec.url }}" class='product-name small-margin-bottom'>{{rec.name}}</a><br>
+            Current Price: <span class='current-price small-margin-bottom'>${{ rec.price }}</span><br>
+            <form action='/add_rec' method='POST' id='add_rec{{ rec.recommendation_id }}'>
+                Wanted Price: <input class='small-margin-bottom' type='number' id='rec_wanted{{ rec.recommendation_id }}' step="any" min="0" placeholder='$' required>
+                <button type='submit' class="btn btn-primary btn-sm small-margin-bottom" id='add_item' value='Add'><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>Add to Watchlist</button>
+            </form>
+            </div>
+        {% endfor %}
+    </ul>
+
+
+            
 <script src="http://code.jquery.com/jquery.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script src="/static/js/add_rec.js"></script>
+
    
 {% endblock %}

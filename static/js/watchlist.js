@@ -80,10 +80,9 @@ function processAdd(result) {
 
         let html_content = `<div class="product-box" id=${result.product_id}>
                           <img src = '${result.image_url}'><br>
-                          <span class='product-name'><b>${result.prod_name}</span></b><br>
+                          <a href='${result.url}' class='product-name'><b>${result.prod_name}</a></b><br>
                           Current Price: <span class='current-price'> $${result.price}</span><br>
                           Wanted Price: $<span id=wanted_price${result.product_id}>${result.threshold}</span><br>
-                          <a href='${result.url}'>Buy now!</a></p>
 
                           <form action='/update' method='POST' id='update_form${result.product_id}'>
                             <input type='number' id='new_threshold${result.product_id}' name='new_threshold' step="any" min="0">

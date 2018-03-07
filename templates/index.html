@@ -2,48 +2,64 @@
 {% block content %}
 
 <div class='bg'>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
+
+<!-- Website CSS style -->
+<link rel="stylesheet" type="text/css" href="assets/css/main.css">
+
+<!-- Website Font style -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+<div class='bg'>
+    <div class="container">
+        <div class="row main">
+            <div class="panel-heading">
+               <div class="panel-title text-center">
+                    <h3 class="title">Amazon Price Tracker</h3>
+                </div>
+            </div> 
+            <div class="main-login main-center">
+                <form class="form-horizontal" action="/login" method='POST'>
+
+                    <div class="form-group">
+                        <label for="email" class="cols-sm-2 control-label">Your Email</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control form-control-gray" name="email" id="email"  placeholder="Enter your Email" required/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="cols-sm-2 control-label">Password</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input type="password" class="form-control form-control-gray" name="pw" id="password"  placeholder="Enter your Password" required/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group ">
+                        <input type="submit" class="btn btn-primary btn-lg btn-block login-button" value='Sign In'>
+                    </div>
+                    <div class="login-register">
+                        <a href="/register">Register</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 
-<div id="sign-in-box">
-<div id='sign-in-form'>
-<h3>Welcome to Amazon Price Tracker!</h3> 
-<form class='sign-in' action='/login' method='POST'>
-    <label name='sign-in-page'> 
-        <b>Email: </b><br>
-        <input type="email" id="email" name="email" placeholder='email@domain.com' maxlength='256' required><br>
-        <b>Password: </b><br>
-        <input type="password" id="pw" name="pw" placeholder='cAsE SeNsItiVe' required>
-    </label><br><br>
-<div id='submit-buttons'>
-        <input type="submit" value="Sign-in"><button type='button' id="register-button">Register!</button>
-</div>
-</form>
-</div>
-</div>
-</div>
-
-<script src="http://code.jquery.com/jquery.js"></script>
-<script src="/static/js/add_rec.js"></script>
 
 {% endblock %}
 
 {% block JQ %}
-    <script>
-        $(function() {
-            $('#sign-in-form').css({
-                'position' : 'absolute',
-                'left' : '50%',
-                'top' : '40%',
-                'padding' : '1%',
-                'margin-left' : function() {return -$(this).outerWidth()/2},
-                'margin-top' : function() {return -$(this).outerHeight()/2},
-                'background': 'rgb(255, 255, 255)',
-                'background': 'rgba(255, 255, 255, 0.3)'
-            });
-        });
-    $('#register-button').on('click', function(){
-        window.location.href='/register';
-    });
-        
-    </script>
+
 {% endblock %}

@@ -53,7 +53,7 @@ def display_recommendation():
         redirect("/watchlist")
     user = User.query.get(session.get("user_id"))
     # get all recommended products for this user
-    recommended = Recommendation.query.filter_by(user_id=session.get('user_id')).all()
+    recommended = Recommendation.query.filter_by(user_id=session.get('user_id')).order_by(Recommendation.recommendation_id.desc()).all()
     # recommended = user.userproducts.products.recommendations
     return render_template("recommendation.html", name=user.fname, recommendations=recommended)
 
@@ -275,7 +275,7 @@ def add_item():
     # item info retrieve from amazon api
     item_info = get_item_info(asin)
     name = item_info.get('title')
-    price = float(str(item_info.get('price')))
+    price = float(item_info.get('price'))
     image_url = item_info.get("image_url")
     category = item_info.get("category")
 
